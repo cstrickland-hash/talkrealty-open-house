@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Talk Realty Open House Sign Out Sheet</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="brand">
+    <h1>Talk Realty Open House Sign Out Sheet</h1>
+    <p>Honolulu · Talk Realty</p>
+  </header>
+  <main class="wrap">
+    <div class="warning" role="alert">
+      <strong>Please read before you sign out signs</strong>
+      <p>Please make sure you sign out the right phone number, and take only signs that share that same phone number, no other ones. Otherwise calls from buyers who see your open house may not reach you, which can mean a lower standard of service and upset buyers.</p>
+    </div>
+
+    <form id="sign-out-form" class="card" novalidate>
+      <label for="sign-select">Sign phone number
+        <span class="hint">The number printed on the sign rider. Choose one number, and take only signs that share it.</span>
+      </label>
+      <select id="sign-select" name="sign_number" class="hidden"></select>
+      <input id="sign-typed" name="sign_number_typed" type="tel" inputmode="tel" autocomplete="tel" placeholder="808-378-7316">
+
+      <label for="num-signs">How many signs</label>
+      <input id="num-signs" name="num_signs" type="number" min="1" step="1" required>
+
+      <label for="agent-name">Full name</label>
+      <input id="agent-name" name="agent_name" type="text" autocomplete="name" required>
+
+      <label for="agent-phone">Your cell phone
+        <span class="hint">Required so we can text you a return link.</span>
+      </label>
+      <input id="agent-phone" name="agent_phone" type="tel" inputmode="tel" autocomplete="tel" required>
+
+      <label for="address">Open house address</label>
+      <input id="address" name="address" type="text" autocomplete="street-address" required>
+
+      <div class="row-2">
+        <div>
+          <label for="oh-date">Open house date</label>
+          <input id="oh-date" name="oh_date" type="date" required>
+        </div>
+        <div>
+          <label for="oh-end">Open house end time
+            <span class="hint">Defaults to 5:00 PM.</span>
+          </label>
+          <input id="oh-end" name="oh_end" type="time" value="17:00">
+        </div>
+      </div>
+
+      <button type="submit" class="primary" id="submit-btn">Sign out these signs</button>
+      <div id="form-msg" class="msg hidden"></div>
+    </form>
+
+    <div id="done" class="card hidden">
+      <p>Mahalo. Your sign out is in.</p>
+      <p>Save this return link. We will also text it to you when it is time to bring the signs back.</p>
+      <p><a id="return-link" href="#"></a></p>
+    </div>
+
+    <footer>Talk Realty · Honolulu, Hawaii</footer>
+  </main>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>SignOutSheet.initSignOut();</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+.env
+# config.js is the public front-end exec URL (no secrets) and is committed
+tests/sample/local-store.json
+__pycache__/
+EXEC_URL.txt
+current-form.html
+current-form-data.js
+current-form-data.json
+Code.gs.form-setup.bak
+*.pyc
+.DS_Store
+.secret_for_paste

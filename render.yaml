@@ -1,0 +1,24 @@
+# Talk Realty Open House Sign Out Sheet
+# Free Render static site (CDN, does not sleep). Do not deploy until asked.
+# Blueprint: type web + runtime static. Not a Web Service (those can sleep on the free plan).
+
+services:
+  - type: web
+    name: talkrealty-open-house
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: site
+    autoDeployTrigger: commit
+    previews:
+      generation: off
+    routes:
+      - type: redirect
+        source: /
+        destination: /open-house-sign-out-sheet/
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer-when-downgrade

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Talk Realty Open House Sign Out Sheet</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="brand">
+    <h1>Talk Realty Open House Sign Out Sheet</h1>
+    <p>Honolulu · Talk Realty</p>
+  </header>
+  <main class="wrap">
+    <div id="return-page">
+      <div id="summary" class="card hidden">
+        <p id="summary-text"></p>
+      </div>
+      <div id="return-msg" class="msg hidden"></div>
+      <div id="return-actions">
+        <div class="card">
+          <p>Have the signs been returned?</p>
+          <button type="button" class="primary" id="btn-returned">I returned the signs</button>
+        </div>
+        <div class="card">
+          <form id="plan-form">
+            <label for="plan-date">Or pick the date you plan to return them</label>
+            <input id="plan-date" type="date" required>
+            <button type="submit" class="secondary">Save planned return date</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <footer>Talk Realty · Honolulu, Hawaii</footer>
+  </main>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>SignOutSheet.initReturn();</script>
+</body>
+</html>

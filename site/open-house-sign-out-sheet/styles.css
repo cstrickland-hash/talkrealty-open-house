@@ -1,0 +1,130 @@
+/* Talk Realty Open House Sign Out Sheet
+   White fill, thin warm border, gold accent. No box-shadow, no grey boxes. */
+:root {
+  --navy: #1B365D;
+  --gold: #C4A35A;
+  --ink: #1A1A1A;
+  --muted: #5C574F;
+  --line: #e3d9c6;
+  --cream: #fbf7f0;
+  --white: #ffffff;
+  --warn-bg: #fffdf8;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.45;
+}
+body { min-height: 100vh; }
+.wrap {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+}
+header.brand {
+  background: var(--navy);
+  color: var(--white);
+  padding: 1rem 1.15rem 1.05rem;
+  border-bottom: 4px solid var(--gold);
+}
+header.brand h1 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+}
+header.brand p {
+  margin: 0.25rem 0 0;
+  font-size: 0.88rem;
+  color: #f3efe6;
+}
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: 1.1rem 1rem 1.2rem;
+  margin: 1rem 0;
+}
+.warning {
+  background: var(--warn-bg);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--gold);
+  padding: 0.95rem 1rem;
+  margin: 1rem 0;
+}
+.warning strong {
+  display: block;
+  color: var(--navy);
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+.warning p { margin: 0; color: var(--ink); }
+label {
+  display: block;
+  font-weight: 600;
+  color: var(--navy);
+  margin: 0.85rem 0 0.3rem;
+}
+input, select, button, textarea {
+  font: inherit;
+  width: 100%;
+}
+input, select {
+  background: var(--white);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0.7rem 0.7rem;
+  min-height: 2.75rem;
+}
+input:focus, select:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+@media (max-width: 520px) {
+  .row-2 { grid-template-columns: 1fr; }
+}
+.hint { font-size: 0.85rem; color: var(--muted); font-weight: 400; }
+button.primary, button.secondary {
+  margin-top: 1.1rem;
+  min-height: 3rem;
+  font-weight: 700;
+  border: 1px solid var(--navy);
+  cursor: pointer;
+}
+button.primary {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+}
+button.secondary {
+  background: var(--white);
+  color: var(--navy);
+  border-color: var(--line);
+}
+button:disabled { opacity: 0.6; cursor: default; }
+.msg {
+  margin: 0.8rem 0 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+.msg.error { border-color: #8a3b2b; color: #6a2a1e; }
+.msg.ok { border-top: 4px solid var(--gold); }
+.hidden { display: none; }
+footer {
+  margin-top: 1.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+a { color: var(--navy); }

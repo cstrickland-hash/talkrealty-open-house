@@ -1,0 +1,46 @@
+# Uptime check for Talk Realty Open House Sign Out Sheet.
+# DO NOT enable the schedule until the static site and Apps Script web app are live.
+# Secrets (repo Settings > Secrets and variables > Actions), never committed:
+#   APPS_SCRIPT_EXEC_URL, RENDER_DEPLOY_HOOK_URL, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM,
+#   DOWN_WEBHOOK_URL, DOWN_WEBHOOK_KEY
+#   (DOWN_WEBHOOK_* are optional. Christopher pastes the Grok Bot routine webhook URL and key himself.)
+# Variables:
+#   STATIC_URL  (e.g. https://YOUR-SERVICE.onrender.com/open-house-sign-out-sheet/)
+#   ALERT_EMAIL (defaults in code to cstrickland@pineapplehi.com)
+
+name: Uptime check
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '*/12 * * * *'   # every 12 minutes UTC. Uncomment after go-live.
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run uptime check
+        id: uptime
+        env:
+          STATIC_URL: ${{ vars.STATIC_URL }}
+          APPS_SCRIPT_EXEC_URL: ${{ secrets.APPS_SCRIPT_EXEC_URL }}
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
+          DOWN_WEBHOOK_URL: ${{ secrets.DOWN_WEBHOOK_URL }}
+          DOWN_WEBHOOK_KEY: ${{ secrets.DOWN_WEBHOOK_KEY }}
+        run: python3 monitor/check_uptime.py --apply --email --redeploy --webhook
