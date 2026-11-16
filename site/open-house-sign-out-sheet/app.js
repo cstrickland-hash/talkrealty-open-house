@@ -2,6 +2,8 @@
 (function () {
   var cfg = window.SIGN_OUT_CONFIG || {};
   var execUrl = cfg.execUrl || '';
+  var LS_NAME = 'talkrealty-oh-agent-name';
+  var LS_PHONE = 'talkrealty-oh-agent-phone';
 
   function $(id) { return document.getElementById(id); }
 
@@ -12,19 +14,78 @@
     el.classList.remove('hidden');
   }
 
+  function digits(s) {
+    return String(s || '').replace(/\D/g, '');
+  }
+
+  function tenDigits(s) {
+    var d = digits(s);
+    if (d.length === 11 && d.charAt(0) === '1') d = d.slice(1);
+    return d.length === 10 ? d : '';
+  }
+
+  function formatPhone(s) {
+    var d = tenDigits(s);
+    if (!d) return '';
+    return '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6);
+  }
+
+  function todayISO() {
+    var d = new Date();
+    try {
+      var parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Pacific/Honolulu', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(d);
+      var y = parts.filter(function (p) { return p.type === 'year'; })[0].value;
+      var m = parts.filter(function (p) { return p.type === 'month'; })[0].value;
+      var day = parts.filter(function (p) { return p.type === 'day'; })[0].value;
+      return y + '-' + m + '-' + day;
+    } catch (e) {
+      return d.toISOString().slice(0, 10);
+    }
+  }
+
+  function prefersReducedMotion() {
+    try {
+      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function contrastText(hex) {
+    var h = String(hex || '').replace('#', '');
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    if (h.length !== 6) return '#FFFFFF';
+    var r = parseInt(h.slice(0, 2), 16) / 255;
+    var g = parseInt(h.slice(2, 4), 16) / 255;
+    var b = parseInt(h.slice(4, 6), 16) / 255;
+    var lin = function (c) { return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    var L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    return L > 0.45 ? '#1A1A1A' : '#FFFFFF';
+  }
+
+  function rememberAgent() {
+    try {
+      var n = $('agent-name');
+      var p = $('agent-phone');
+      if (n && n.value.trim()) localStorage.setItem(LS_NAME, n.value.trim());
+      if (p && p.value.trim()) localStorage.setItem(LS_PHONE, p.value.trim());
+    } catch (e) {}
+  }
+
+  function restoreAgent() {
+    try {
+      var n = $('agent-name');
+      var p = $('agent-phone');
+      if (n && !n.value) n.value = localStorage.getItem(LS_NAME) || '';
+      if (p && !p.value) p.value = localStorage.getItem(LS_PHONE) || '';
+    } catch (e) {}
+  }
+
   function api(action, data, cb) {
     data = data || {};
     data.action = action;
     if (cfg.useGas && typeof google !== 'undefined' && google.script && google.script.run) {
-      var fn = { submit: 'submit_', return: 'markReturnedGas_', plan: 'planReturnGas_', get: 'getRecord_' }[action];
-      if (!fn) { cb({ ok: false, error: 'unknown_action' }); return; }
-      var arg = action === 'return' ? (data.r || data.token)
-        : action === 'plan' ? [data.r || data.token, data.planned || data.date]
-        : action === 'get' ? (data.r || data.token)
-        : data;
-      var runner = google.script.run.withSuccessHandler(cb).withFailureHandler(function () { cb({ ok: false, error: 'network' }); });
-      if (action === 'plan') runner[fn](arg[0], arg[1]);
-      else runner[fn](arg);
+      google.script.run.withSuccessHandler(cb).withFailureHandler(function () { cb({ ok: false, error: 'network' }); }).submit_(data);
       return;
     }
     if (cfg.mock) {
@@ -76,187 +137,95 @@
     document.head.appendChild(script);
   }
 
-  function loadNumbers(cb) {
-    if (cfg.useGas && typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run.withSuccessHandler(function (numbers) { cb({ ok: true, numbers: numbers || [] }); })
-        .withFailureHandler(function () { cb({ ok: true, numbers: [] }); })
-        .readSignNumbers_();
-      return;
+  function showAllOut(message) {
+    var box = $('all-out');
+    var p = $('all-out-msg');
+    if (p) p.textContent = message || 'All sign colors are currently signed out. Please call Christopher at Talk Realty.';
+    if (box) {
+      box.hidden = false;
+      box.classList.remove('hidden');
     }
-    if (cfg.mock) {
-      fetch((cfg.execUrl || '/mock-exec') + '?action=numbers')
-        .then(function (r) { return r.json(); })
-        .then(cb)
-        .catch(function () { cb({ ok: true, numbers: [] }); });
-      return;
-    }
-    if (!execUrl) { cb({ ok: true, numbers: [] }); return; }
-    jsonp('numbers', {}, cb);
+    var main = $('page-main');
+    var header = $('page-header');
+    if (main) main.classList.add('hidden');
+    if (header) header.classList.add('hidden');
   }
 
-  function setupSignField(numbers) {
-    var select = $('sign-select');
-    var typed = $('sign-typed');
-    if (!select || !typed) return;
-    if (numbers && numbers.length) {
-      select.innerHTML = '<option value="">Select a sign phone number</option>';
-      numbers.forEach(function (n) {
-        var o = document.createElement('option');
-        o.value = n;
-        o.textContent = n;
-        select.appendChild(o);
-      });
-      select.classList.remove('hidden');
-      select.required = true;
-      typed.classList.add('hidden');
-      typed.required = false;
-      typed.value = '';
-    } else {
-      select.classList.add('hidden');
-      select.required = false;
-      typed.classList.remove('hidden');
-      typed.required = true;
+  function showAssigned(res) {
+    var color = res.color || {};
+    var hex = color.hex || '#1B365D';
+    var text = color.text || contrastText(hex);
+    var name = String(color.name || res.color_name || '').trim() || 'assigned';
+    var number = res.sign_display || formatPhone(res.sign_number) || res.sign_number || '';
+    var msg = res.message || ('Go to the ' + name.toUpperCase() + ' section of the wall for your signs.');
+    var screen = $('confirm-screen');
+    if (!screen) return;
+    screen.style.setProperty('--fill-color', hex);
+    screen.style.setProperty('--fill-text', text);
+    $('confirm-color').textContent = name;
+    $('confirm-number').textContent = number;
+    $('confirm-msg').textContent = msg;
+    screen.hidden = false;
+    screen.classList.remove('hidden');
+    var start = function () { screen.classList.add('lit'); };
+    if (prefersReducedMotion()) {
+      start();
+      screen.classList.add('ready');
+      return;
     }
-  }
-
-  function todayISO() {
-    var d = new Date();
-    var tz = 'Pacific/Honolulu';
-    try {
-      var parts = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(d);
-      var y = parts.filter(function (p) { return p.type === 'year'; })[0].value;
-      var m = parts.filter(function (p) { return p.type === 'month'; })[0].value;
-      var day = parts.filter(function (p) { return p.type === 'day'; })[0].value;
-      return y + '-' + m + '-' + day;
-    } catch (e) {
-      return d.toISOString().slice(0, 10);
-    }
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(start);
+    });
+    window.setTimeout(function () { screen.classList.add('ready'); }, 1900);
   }
 
   function initSignOut() {
     var form = $('sign-out-form');
     if (!form) return;
-    var date = $('oh-date');
-    if (date && !date.value) date.value = todayISO();
-    var end = $('oh-end');
-    if (end && !end.value) end.value = '17:00';
-    loadNumbers(function (res) {
-      setupSignField((res && res.numbers) || []);
-    });
+    restoreAgent();
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
       var btn = $('submit-btn');
       var msg = $('form-msg');
-      var select = $('sign-select');
-      var typed = $('sign-typed');
-      var sign = (select && !select.classList.contains('hidden')) ? select.value : (typed ? typed.value : '');
       var payload = {
-        sign_number: (sign || '').trim(),
-        num_signs: $('num-signs').value,
         agent_name: $('agent-name').value.trim(),
         agent_phone: $('agent-phone').value.trim(),
         address: $('address').value.trim(),
-        oh_date: $('oh-date').value,
-        oh_end: $('oh-end').value || '17:00'
+        oh_date: todayISO(),
+        oh_end: '17:00',
+        num_signs: '1'
       };
+      if (!payload.agent_name || digits(payload.agent_phone).length < 10 || !payload.address) {
+        show(msg, 'error', 'Please check the required fields and try again.');
+        return;
+      }
       btn.disabled = true;
       api('submit', payload, function (res) {
         btn.disabled = false;
+        if (res && res.error === 'all_out') {
+          rememberAgent();
+          showAllOut(res.message);
+          return;
+        }
         if (!res || !res.ok) {
           if (res && res.error === 'not_configured') {
             show(msg, 'error', 'This preview is not connected to the live sheet yet.');
-          } else if (res && res.error === 'sign_number_not_on_list') {
-            show(msg, 'error', 'Please choose a sign phone number from the list.');
+          } else if (res && res.error === 'busy') {
+            show(msg, 'error', 'Please try again in a moment.');
           } else {
             show(msg, 'error', 'Please check the required fields and try again.');
           }
           return;
         }
-        form.classList.add('hidden');
-        var done = $('done');
-        done.classList.remove('hidden');
-        var link = returnLink(res.token);
-        var a = $('return-link');
-        a.href = link;
-        a.textContent = link;
+        rememberAgent();
+        showAssigned(res);
       });
     });
   }
 
-  function returnLink(token) {
-    var base = cfg.publicBase || (window.location.origin + window.location.pathname.replace(/index\.html$/, '').replace(/\/$/, ''));
-    return base + '/return.html?r=' + encodeURIComponent(token);
-  }
-
-  function tokenFromUrl() {
-    var q = new URLSearchParams(window.location.search);
-    return q.get('r') || q.get('token') || '';
-  }
-
-  function initReturn() {
-    var box = $('return-page');
-    if (!box) return;
-    var token = tokenFromUrl();
-    var msg = $('return-msg');
-    if (!token) {
-      show(msg, 'error', 'This return link is missing. Please use the link from your text.');
-      $('return-actions').classList.add('hidden');
-      return;
-    }
-    var load = function (res) {
-      if (!res || !res.ok) {
-        show(msg, 'error', 'We could not find this sign out. Please use the link from your text, or ask the office for help.');
-        $('return-actions').classList.add('hidden');
-        return;
-      }
-      var row = res.row || {};
-      $('summary').classList.remove('hidden');
-      $('summary-text').textContent = (row.agent_name || '') + ' · ' + (row.sign_number || '') + ' · ' + (row.address || '');
-      if (row.returned === 'Y') {
-        $('return-actions').classList.add('hidden');
-        show(msg, 'ok', 'These signs are already marked as returned. Mahalo.');
-      }
-    };
-    if (cfg.useGas && typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run.withSuccessHandler(load).withFailureHandler(function () {
-        show(msg, 'error', 'We could not load this sign out.');
-      }).getRecord_(token);
-    } else if (cfg.mock) {
-      fetch((cfg.execUrl || '/mock-exec') + '?action=get&r=' + encodeURIComponent(token))
-        .then(function (r) { return r.json(); }).then(load)
-        .catch(function () { show(msg, 'error', 'We could not load this sign out.'); });
-    } else if (execUrl) {
-      jsonp('get', { r: token }, load);
-    } else {
-      show(msg, 'error', 'This preview is not connected to the live sheet yet.');
-    }
-
-    $('btn-returned').addEventListener('click', function () {
-      api('return', { r: token }, function (res) {
-        if (!res || !res.ok) {
-          show(msg, 'error', 'We could not save that. Please try again.');
-          return;
-        }
-        $('return-actions').classList.add('hidden');
-        show(msg, 'ok', 'Mahalo. The signs are marked as returned.');
-      });
-    });
-    $('plan-form').addEventListener('submit', function (ev) {
-      ev.preventDefault();
-      var date = $('plan-date').value;
-      if (!date) {
-        show(msg, 'error', 'Please pick the date you plan to return the signs.');
-        return;
-      }
-      api('plan', { r: token, planned: date }, function (res) {
-        if (!res || !res.ok) {
-          show(msg, 'error', 'We could not save that date. Please try again.');
-          return;
-        }
-        show(msg, 'ok', 'Got it. We will check back after ' + date + '.');
-      });
-    });
-  }
-
-  window.SignOutSheet = { initSignOut: initSignOut, initReturn: initReturn, loadNumbers: loadNumbers };
+  window.SignOutSheet = {
+    initSignOut: initSignOut,
+    formatPhone: formatPhone,
+    tenDigits: tenDigits
+  };
 })();

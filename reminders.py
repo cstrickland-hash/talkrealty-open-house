@@ -1,28 +1,11 @@
 #!/usr/bin/env python3
-"""Build reminder texts for the Talk Realty Open House Sign Out Sheet.
+"""UNUSED (Christopher t4840u / t4849u, Nov 15 2026).
 
-Does not send texts. FUB has no API send; actual sending is a FUB UI browser step.
+Return reminder texts are cancelled. Do not schedule the 6:30 PM or 12 PM
+(noon) text jobs, and do not send texts from this file. Thursday sign checks
+now go through thursday_card.py and the Task Desk.
 
-Jobs:
-  evening  ~6:30 PM HST: sign-outs whose OH date is today and not returned
-  noon     12:00 PM HST: not returned, OH date 1+ day ago, max one text per 24h;
-           skip if a planned return date is still in the future (text the day
-           after that date if still not returned)
-  daily    alias for noon (Christopher, t4829u: a daily 12 PM check is enough)
-
-Never includes anyone after 9:00 PM HST (window is 8:00 AM up to but not
-including 9:00 PM). Never prints FUB_API_KEY or EXPORT_SECRET.
-
-Read the sheet headless (free): GET the Apps Script web app
-  {SIGN_OUT_EXPORT_URL}?action=export&key={EXPORT_SECRET}
-Local testing: --input tests/sample/signouts.json (never writes the live Sheet).
-
-Usage:
-  python3 reminders.py noon --input tests/sample/signouts.json
-  python3 reminders.py evening --input tests/sample/signouts.json
-  python3 reminders.py daily --url "$SIGN_OUT_EXPORT_URL"
-  python3 reminders.py mark-sent --token TOKEN --input /tmp/out.json
-  python3 reminders.py mark-sent --token TOKEN --url "$SIGN_OUT_EXPORT_URL"
+The functions below are left in place only as unused reference.
 """
 from __future__ import annotations
 

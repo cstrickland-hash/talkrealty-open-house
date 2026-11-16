@@ -2,11 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0; url=/open-house-sign-out-sheet/">
   <title>Talk Realty Open House Sign Out Sheet</title>
   <link rel="canonical" href="/open-house-sign-out-sheet/">
+  <script>
+    (function () {
+      var q = location.search || "";
+      var h = location.hash || "";
+      location.replace("/open-house-sign-out-sheet/" + q + h);
+    })();
+  </script>
 </head>
 <body>
-  <p><a href="/open-house-sign-out-sheet/">Talk Realty Open House Sign Out Sheet</a></p>
+  <p><a id="fallback" href="/open-house-sign-out-sheet/">Talk Realty Open House Sign Out Sheet</a></p>
+  <script>
+    document.getElementById("fallback").href = "/open-house-sign-out-sheet/" + (location.search || "") + (location.hash || "");
+  </script>
 </body>
 </html>

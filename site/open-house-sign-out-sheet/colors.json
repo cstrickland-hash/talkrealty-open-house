@@ -1,0 +1,103 @@
+{
+  "palette": [
+    {
+      "id": "red",
+      "name": "Red",
+      "hex": "#E03131",
+      "text": "#FFFFFF",
+      "border": "#B42525",
+      "number": "8083787316"
+    },
+    {
+      "id": "blue",
+      "name": "Blue",
+      "hex": "#1C7ED6",
+      "text": "#FFFFFF",
+      "border": "#1864AB",
+      "number": ""
+    },
+    {
+      "id": "green",
+      "name": "Green",
+      "hex": "#2F9E44",
+      "text": "#FFFFFF",
+      "border": "#2B8A3E",
+      "number": ""
+    },
+    {
+      "id": "yellow",
+      "name": "Yellow",
+      "hex": "#F4D03F",
+      "text": "#1A1A1A",
+      "border": "#C9A227",
+      "number": ""
+    },
+    {
+      "id": "orange",
+      "name": "Orange",
+      "hex": "#F76707",
+      "text": "#FFFFFF",
+      "border": "#D9480F",
+      "number": ""
+    },
+    {
+      "id": "purple",
+      "name": "Purple",
+      "hex": "#7048E8",
+      "text": "#FFFFFF",
+      "border": "#5F3DC4",
+      "number": ""
+    },
+    {
+      "id": "pink",
+      "name": "Pink",
+      "hex": "#F06595",
+      "text": "#FFFFFF",
+      "border": "#D6336C",
+      "number": ""
+    },
+    {
+      "id": "black",
+      "name": "Black",
+      "hex": "#1A1A1A",
+      "text": "#FFFFFF",
+      "border": "#000000",
+      "number": ""
+    },
+    {
+      "id": "white",
+      "name": "White",
+      "hex": "#FFFFFF",
+      "text": "#1A1A1A",
+      "border": "#1A1A1A",
+      "number": ""
+    },
+    {
+      "id": "brown",
+      "name": "Brown",
+      "hex": "#8D4925",
+      "text": "#FFFFFF",
+      "border": "#6B3417",
+      "number": ""
+    },
+    {
+      "id": "lightblue",
+      "name": "Light blue",
+      "hex": "#74C0FC",
+      "text": "#1A1A1A",
+      "border": "#1C7ED6",
+      "number": ""
+    },
+    {
+      "id": "lime",
+      "name": "Lime",
+      "hex": "#94D82D",
+      "text": "#1A1A1A",
+      "border": "#5C940D",
+      "number": ""
+    }
+  ],
+  "assignments": {
+    "8083787316": "red"
+  }
+}

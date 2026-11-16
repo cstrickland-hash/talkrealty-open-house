@@ -1,3 +1,51 @@
+# Talk Realty Open House Sign Out Sheet — current setup
+
+Live public page: https://talkrealty-open-house.onrender.com/open-house-sign-out-sheet/
+
+Agents scan **one QR** and enter Name, Phone, and Open house location. The Apps Script backend assigns the next available sign color/number from `colors.json` (LockService so two submits cannot get the same color). The confirmation fills the screen with that color and says to go to that section of the wall. A color stays out until Thursday Task Desk approval marks it returned, which frees it.
+
+Return reminder texts are cancelled. `reminders.py` is unused. There is no return page or return link on the public site. Do not schedule 6:30 PM or 12 PM text jobs.
+
+## Thursday Task Desk
+
+Routine command (posts one idempotent card; do not use until Christopher creates the routine):
+
+```
+python3 /workspace/jarvis/open-house-signout/thursday_card.py --post
+```
+
+Dry run (prints the card, posts nothing):
+
+```
+python3 /workspace/jarvis/open-house-signout/thursday_card.py
+```
+
+The card lists each currently-out color as one row (color, sign number, agent, sign-out date, location) with a Returned checkbox, plus one "Signs in office" count. Approving ticked colors writes Returned=Y to the Sheet and frees those colors. Number routing back to Christopher is later, after his list of numbers. No texts or emails.
+
+## QR posters and wall labels
+
+```
+python3 /workspace/jarvis/open-house-signout/make_qr_sheet.py
+```
+
+One poster QR for the single sign-out page, plus a printable wall-label PDF (color dot + number) for each color. Sample: 808-378-7316 is red. Add the rest of the numbers in `colors.json` later (and on the live `site/open-house-sign-out-sheet/colors.json`).
+
+## Apps Script — browser paste required for assign-on-submit
+
+The live `/exec` URL should stay the same. In the Apps Script editor bound to the tracker Sheet:
+
+1. Replace `Code.gs` with the local file `/workspace/jarvis/open-house-signout/Code.gs` (also copied at `apps-script/Code.gs`).
+2. Optional: Project Settings > Script properties > add `FUB_API_KEY` (same value as `.env`, never paste it in chat). This fills the **Verified agent** column by a read-only check of active FUB users. If omitted, new rows get `not checked`.
+3. Deploy > Manage deployments > the existing web app > **New version** (not a new deployment). Execute as Me, Anyone.
+4. Confirm `/exec?action=health` still returns ok and the `/exec` URL did not change.
+5. Then test one sign-out on the live page. The screen should fade into the assigned color. Delete that test row after, or mark it returned on Thursday.
+
+Until this redeploy happens, the live form will show the new page but submit cannot assign a color (the deployed script still expects the old fields).
+
+## Older notes
+
+The sections below were written before go-live and still describe the first paste/deploy. Prefer the current section above.
+
 # Talk Realty Open House Sign Out Sheet — setup (do not deploy yet)
 
 Nothing in this folder has been deployed, shared, emailed, or enabled. The live tracker Sheet has no test rows.
