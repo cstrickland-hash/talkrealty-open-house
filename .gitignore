@@ -20,3 +20,9 @@ Return.html
 qr/
 talkrealty-open-house-sign-out-TEST-qr.png
 talkrealty-open-house-sign-out-TEST-qr.pdf
+
+# Source footage and working encodes stay off the public repo
+video/*.mov
+video/bg-desktop.mp4
+video/bg-mobile.mp4
+video/bg.jpg

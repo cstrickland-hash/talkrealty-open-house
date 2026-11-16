@@ -330,11 +330,28 @@
 
   function initBgVideo() {
     var video = $('bg-video');
-    var src = (cfg && cfg.bgVideo) || '';
-    if (!video || !src) return;
+    var posterEl = $('bg-poster');
+    var srcDesktop = (cfg && cfg.bgVideo) || '';
+    var srcMobile = (cfg && cfg.bgVideoMobile) || '';
+    var posterSrc = (cfg && cfg.bgPoster) || '';
+    if (posterEl && posterSrc) posterEl.setAttribute('src', posterSrc);
+    if (video && posterSrc) video.setAttribute('poster', posterSrc);
+    if (!video || !srcDesktop) return;
     if (prefersReducedMotion() || saveDataOrSlow()) return;
+    var useMobile = false;
+    try { useMobile = window.innerWidth < 768; } catch (e) {}
+    var src = (useMobile && srcMobile) ? srcMobile : srcDesktop;
     var start = function () {
       if (!video.getAttribute('src')) {
+        video.muted = true;
+        video.defaultMuted = true;
+        video.loop = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.setAttribute('muted', '');
+        video.setAttribute('autoplay', '');
+        video.setAttribute('loop', '');
+        video.setAttribute('playsinline', '');
         video.setAttribute('src', src);
         video.load();
       }
