@@ -58,7 +58,11 @@ def main():
     assert "text you a return" not in page.lower()
     assert "we will also text" not in page.lower()
     assert "Your open house signs are the ones under the" in page
+    assert "Your open house signs phone number is" in page
+    assert "confirm-number-label" in page and "confirm-number" in page
     assert "confirm-color-name" in page and "confirm-color-name" in js
+    assert "font-family: var(--serif)" in css
+    assert "clamp(0.95rem, 3.3vw, 1.65rem)" in css
     assert ("Playfair+Display" in page or "Playfair Display" in page) and "Playfair Display" in css
     assert ("Inter+Tight" in page or "Inter Tight" in page) and "Inter Tight" in css
     assert "display=swap" in page and 'rel="preload"' in page
