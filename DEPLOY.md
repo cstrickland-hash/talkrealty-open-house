@@ -1,5 +1,11 @@
 # Talk Realty Open House Sign Out Sheet — current setup
 
+Master system doc (every rule and every change; update its change log the same day):
+
+https://docs.google.com/document/d/1E6zhj1qA1ycWklqzgotXEx8Vna_oru4HR24OPKNz9ZE/edit
+
+Box copy: `/workspace/jarvis/open-house-signout/SYSTEM-MASTER.md`
+
 Live public page: https://talkrealty-open-house.onrender.com/open-house-sign-out-sheet/
 
 TEST page (writes only to the **TEST** tab, never the live Sign-Outs log):
