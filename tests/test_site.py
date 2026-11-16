@@ -36,7 +36,7 @@ def main():
     assert "sign-sets-left" in page and "Sign sets left" in page
     assert "sign-sets-left" in css
     assert "warning-key" in page and "take only the signs from the color section you are given" in page
-    assert "warning-icon" in page and "border-left: 8px solid" in css
+    assert "warning-icon" in page and "border-left: 6px solid" in css
     assert "bg-video" in page and "assets/bg.mp4" in js and "assets/bg.jpg" in page
     assert "prefersReducedMotion" in js and "saveData" in js
     assert "initCardTilt" in js
@@ -54,9 +54,12 @@ def main():
     assert "we will also text" not in page.lower()
     assert "Your open house signs are the ones under the" in page
     assert "confirm-color-name" in page and "confirm-color-name" in js
-    assert ("Playfair Display" in page or "Playfair+Display" in page) and "Playfair Display" in css
-    assert "Source+Sans+3" in page or "Source Sans 3" in page
-    assert "Source Sans 3" in css
+    assert ("Playfair+Display" in page or "Playfair Display" in page) and "Playfair Display" in css
+    assert ("Inter+Tight" in page or "Inter Tight" in page) and "Inter Tight" in css
+    assert "display=swap" in page and 'rel="preload"' in page
+    assert "letter-spacing: 0.12em" in css
+    assert "text-transform: uppercase" in css
+    assert "#161b2e" in css
     assert "prefers-reduced-motion" in js and "prefers-reduced-motion" in css
     assert "confirm-screen" in page and "confirm-screen" in css
     assert "transition: opacity 1.8s ease" in css
