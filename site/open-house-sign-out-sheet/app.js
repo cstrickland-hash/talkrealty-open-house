@@ -111,7 +111,6 @@
     document.body.classList.add('test-mode');
     reveal($('test-badge'));
     reveal($('test-reset-wrap'));
-    reveal($('confirm-reset-wrap'));
     reveal($('all-out-reset-wrap'));
   }
 
@@ -381,7 +380,6 @@
     initBgVideo();
     restoreAgent();
     bindReset('test-reset-link');
-    bindReset('confirm-reset-link');
     bindReset('all-out-reset-link');
     refreshSetsLeft();
     maybeAutoReset();

@@ -77,6 +77,11 @@ def main():
     assert "localStorage" in js
     assert "TEST MODE" in page and "test-badge" in page
     assert "test-reset" in js and "test-reset" in page
+    assert "confirm-reset-link" not in page
+    # Reveal screen must never show a reset link, even in test mode.
+    confirm = page.split('id="confirm-screen"', 1)[1].split('id="all-out"', 1)[0]
+    assert "Reset test colors" not in confirm
+    assert "confirm-reset" not in confirm
     assert "testMode" in js and "q.get('test')" in js
     assert (ROOT / "site" / "open-house-sign-out-sheet" / "test" / "index.html").exists()
     assert "Christopher Strickland" not in js
