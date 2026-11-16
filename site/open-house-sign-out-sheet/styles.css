@@ -354,13 +354,13 @@ a { color: var(--navy); }
 }
 .confirm-number {
   display: block;
-  margin: 0.35rem 0 0;
+  margin: 0.85rem 0 0;
   font-family: var(--serif);
-  font-weight: 400;
-  /* About 55–58% of the headline clamp(1.65rem, 5.8vw, 2.85rem). */
-  font-size: clamp(0.95rem, 3.3vw, 1.65rem);
-  line-height: 1.2;
-  letter-spacing: 0.03em;
+  font-weight: 600;
+  /* Second-biggest line: about the headline size or slightly smaller. */
+  font-size: clamp(1.9rem, 8vw, 2.6rem);
+  line-height: 1.15;
+  letter-spacing: 0.08em;
 }
 .confirm-reset-wrap {
   margin: 1.4rem 0 0;
