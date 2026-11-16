@@ -115,6 +115,38 @@
     reveal($('all-out-reset-wrap'));
   }
 
+  function renderSetsLeft(res) {
+    var wrap = $('sign-sets-left');
+    var countEl = $('sign-sets-left-count');
+    var totalEl = $('sign-sets-left-total');
+    var noneEl = $('sign-sets-none');
+    var total = 5;
+    var left = null;
+    if (res && res.total != null && res.total !== '') total = Number(res.total);
+    if (res && res.ok && res.left != null && res.left !== '') left = Number(res.left);
+    if (totalEl) totalEl.textContent = String(total);
+    if (countEl) countEl.textContent = left === null || isNaN(left) ? '—' : String(left);
+    if (wrap) {
+      wrap.classList.toggle('is-zero', left === 0);
+      reveal(wrap);
+    }
+    if (noneEl) {
+      if (left === 0) reveal(noneEl);
+      else hide(noneEl);
+    }
+    var allOutLeft = $('all-out-left');
+    if (allOutLeft && total) {
+      allOutLeft.textContent = 'Sign sets left: ' + (left === 0 ? '0' : (left === null || isNaN(left) ? '—' : String(left))) + ' of ' + total;
+      allOutLeft.classList.toggle('is-zero', left === 0);
+    }
+  }
+
+  function refreshSetsLeft() {
+    api('available', {}, function (res) {
+      renderSetsLeft(res);
+    });
+  }
+
   function showFormAgain() {
     var screen = $('confirm-screen');
     if (screen) {
@@ -137,6 +169,8 @@
       } else {
         show(msg, 'error', 'Could not reset test colors. Please try again.');
       }
+      if (res && res.ok && res.left != null) renderSetsLeft(res);
+      refreshSetsLeft();
       if (cb) cb(res);
     });
   }
@@ -272,14 +306,78 @@
     } catch (e) {}
   }
 
+
+  function saveDataOrSlow() {
+    try {
+      var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (!c) return false;
+      if (c.saveData) return true;
+      var t = String(c.effectiveType || '').toLowerCase();
+      return t === 'slow-2g' || t === '2g';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function initBgVideo() {
+    var video = $('bg-video');
+    if (!video) return;
+    if (prefersReducedMotion() || saveDataOrSlow()) return;
+    var start = function () {
+      if (!video.getAttribute('src')) {
+        video.setAttribute('src', '../assets/bg.mp4');
+        video.load();
+      }
+      var play = video.play();
+      if (play && play.then) {
+        play.then(function () { video.classList.add('is-on'); }).catch(function () {});
+      } else {
+        video.classList.add('is-on');
+      }
+    };
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(start, { timeout: 1200 });
+    } else {
+      window.setTimeout(start, 200);
+    }
+  }
+
+  function initCardTilt() {
+    var card = document.querySelector('.card');
+    if (!card || prefersReducedMotion()) return;
+    var max = 6;
+    var fine = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+    var apply = function (x, y) {
+      x = Math.max(-1, Math.min(1, x));
+      y = Math.max(-1, Math.min(1, y));
+      card.style.transform = 'perspective(1200px) rotateX(' + (-y * max).toFixed(2) + 'deg) rotateY(' + (x * max).toFixed(2) + 'deg)';
+    };
+    var reset = function () { card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)'; };
+    if (fine) {
+      card.addEventListener('pointermove', function (e) {
+        var r = card.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        apply(((e.clientX - r.left) / r.width) * 2 - 1, ((e.clientY - r.top) / r.height) * 2 - 1);
+      });
+      card.addEventListener('pointerleave', reset);
+    }
+    window.addEventListener('deviceorientation', function (e) {
+      if (e.gamma == null || e.beta == null) return;
+      apply(e.gamma / 22, ((e.beta - 45) / 30));
+    }, { passive: true });
+  }
+
   function initSignOut() {
     var form = $('sign-out-form');
     if (!form) return;
     applyTestMode();
+    initBgVideo();
+    initCardTilt();
     restoreAgent();
     bindReset('test-reset-link');
     bindReset('confirm-reset-link');
     bindReset('all-out-reset-link');
+    refreshSetsLeft();
     maybeAutoReset();
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
@@ -302,7 +400,9 @@
         btn.disabled = false;
         if (res && res.error === 'all_out') {
           rememberAgent();
+          if (res.left != null) renderSetsLeft(res);
           showAllOut(res.message);
+          refreshSetsLeft();
           return;
         }
         if (!res || !res.ok) {
@@ -316,7 +416,9 @@
           return;
         }
         rememberAgent();
+        if (res.left != null) renderSetsLeft(res);
         showAssigned(res);
+        refreshSetsLeft();
       });
     });
   }

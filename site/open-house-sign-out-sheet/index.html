@@ -10,15 +10,35 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div class="bg-stage" aria-hidden="true">
+    <img class="bg-poster" src="../assets/bg.jpg" alt="" width="1600" height="900">
+    <video id="bg-video" class="bg-video" muted loop playsinline preload="none" poster="../assets/bg.jpg"></video>
+    <div class="bg-overlay"></div>
+  </div>
+
   <div id="test-badge" class="test-badge hidden" hidden>TEST MODE</div>
+
   <header class="brand" id="page-header">
-    <h1>Talk Realty Open House Sign Out Sheet</h1>
-    <p>Honolulu · Talk Realty</p>
+    <div class="brand-inner">
+      <p class="wordmark">Talk Realty</p>
+      <h1>Open House Sign Out</h1>
+    </div>
   </header>
+
   <main class="wrap" id="page-main">
+    <p id="sign-sets-left" class="sign-sets-left" aria-live="polite">
+      Sign sets left: <strong id="sign-sets-left-count">—</strong> of <span id="sign-sets-left-total">5</span>
+      <span id="sign-sets-none" class="sign-sets-none hidden">None left</span>
+    </p>
+
     <div class="warning" role="alert">
-      <strong>Please read before you sign out signs</strong>
-      <p>Please make sure you take only the signs from the color section you are given, and only signs that share that same phone number, no other ones. Otherwise calls from buyers who see your open house may not reach you, which can mean a lower standard of service and upset buyers.</p>
+      <svg class="warning-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+      </svg>
+      <div class="warning-body">
+        <strong class="warning-title">Please read before you sign out signs</strong>
+        <p>Please make sure you <strong class="warning-key">take only the signs from the color section you are given</strong>, and only signs that share that same phone number, no other ones. Otherwise calls from buyers who see your open house may not reach you, which can mean a lower standard of service and upset buyers.</p>
+      </div>
     </div>
 
     <form id="sign-out-form" class="card" novalidate>
@@ -40,7 +60,10 @@
       so you can try again and see every color, then the all-out message.
     </p>
 
-    <footer>Talk Realty · Honolulu, Hawaii</footer>
+    <footer>
+      Talk Realty · Honolulu, Hawaii
+      <span class="credit">Background: Chris The Island / Pexels</span>
+    </footer>
   </main>
 
   <div id="confirm-screen" class="confirm-screen hidden" hidden aria-live="polite">
@@ -53,6 +76,7 @@
 
   <div id="all-out" class="all-out hidden" hidden role="alert">
     <div class="all-out-inner">
+      <p id="all-out-left" class="sign-sets-left is-zero">Sign sets left: 0 of 5</p>
       <p id="all-out-msg">All sign colors are currently signed out. Please call Christopher at Talk Realty.</p>
       <p id="all-out-reset-wrap" class="confirm-reset-wrap hidden"><a id="all-out-reset-link" href="?test=1&amp;reset=1">Reset test colors</a></p>
     </div>

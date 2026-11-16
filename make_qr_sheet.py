@@ -163,7 +163,7 @@ def wall_label_png(color: dict, out: Path) -> Path:
         draw.text(((w - (bbox[2] - bbox[0])) / 2, cy + diameter // 2 + 260), number, font=pf, fill=INK)
     else:
         pf = font(48, False)
-        t = "Sign number coming soon"
+        t = "Number pending"
         bbox = draw.textbbox((0, 0), t, font=pf)
         draw.text(((w - (bbox[2] - bbox[0])) / 2, cy + diameter // 2 + 280), t, font=pf, fill=(92, 87, 79))
     foot = font(36, False)

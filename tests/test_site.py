@@ -24,15 +24,30 @@ def main():
             for bad in BANNED:
                 if bad.lower() in text.lower():
                     raise SystemExit(f"{path} contains banned name {bad!r}")
-        if "box-shadow:" in text or "drop-shadow(" in text or "filter: drop-shadow" in text:
-            raise SystemExit(f"{path} uses a shadow")
+        if "drop-shadow(" in text or "filter: drop-shadow" in text:
+            raise SystemExit(f"{path} uses a drop-shadow filter")
     page = (ROOT / "site" / "open-house-sign-out-sheet" / "index.html").read_text()
     js = (ROOT / "site" / "open-house-sign-out-sheet" / "app.js").read_text()
     css = (ROOT / "site" / "open-house-sign-out-sheet" / "styles.css").read_text()
     assert TITLE in page
     assert WARNING in page
+    assert "Talk Realty" in page and "Open House Sign Out" in page
+    assert "wordmark" in page
+    assert "sign-sets-left" in page and "Sign sets left" in page
+    assert "sign-sets-left" in css
+    assert "warning-key" in page and "take only the signs from the color section you are given" in page
+    assert "warning-icon" in page and "border-left: 8px solid" in css
+    assert "bg-video" in page and "assets/bg.mp4" in js and "assets/bg.jpg" in page
+    assert "prefersReducedMotion" in js and "saveData" in js
+    assert "initCardTilt" in js
     for field_id in ["agent-name", "agent-phone", "address"]:
         assert field_id in page, field_id
+    colors = (ROOT / "site" / "open-house-sign-out-sheet" / "colors.json").read_text()
+    assert colors.count('"id"') == 5
+    assert "8083787316" in colors and '"pending": true' in colors
+    assert (ROOT / "site" / "assets" / "bg.jpg").exists()
+    assert (ROOT / "site" / "assets" / "bg.mp4").exists()
+    assert (ROOT / "site" / "assets" / "bg.mp4").stat().st_size < 2 * 1024 * 1024
     assert "sign-typed" not in page
     assert "return-link" not in page
     assert "text you a return" not in page.lower()
@@ -52,7 +67,7 @@ def main():
     assert (ROOT / "site" / "open-house-sign-out-sheet" / "test" / "index.html").exists()
     assert "Christopher Strickland" not in js
     # CSS comment may mention box-shadow; only reject actual properties.
-    assert "box-shadow:" not in css
+    # Website shadows are requested for card/button depth (not packet PDFs).
     print("site content tests passed")
     return 0
 

@@ -10,7 +10,7 @@ https://talkrealty-open-house.onrender.com/open-house-sign-out-sheet/?test=1
 
 Agents scan **one QR** and enter Name, Phone, and Open house location. The Apps Script backend assigns the next available sign color/number from `colors.json` (LockService so two submits cannot get the same color). The confirmation slowly fills the whole screen with that color (~1.8s; instant if the phone prefers reduced motion), then shows, in Playfair Display: "Your open house signs are the ones under the RED label." The color name is dynamic and uppercase in that line. The sign number sits smaller underneath, in a clean sans. A color stays out until Thursday Task Desk approval marks it returned, which frees it.
 
-TEST mode uses five sample colors with fake 555 numbers, shows a small TEST MODE badge, and has a **Reset test colors** link that frees every test color so you can cycle them and see the all-out message. FUB validation is a flag only (Verified agent column) and never blocks a submit. No FUB number routing.
+Live inventory is five sign sets (Red 808-378-7316; Blue, Green, Yellow, and Orange numbers pending). The page shows a live **Sign sets left: X of 5** counter (`?action=available`, plus `test=1` in TEST mode). TEST mode uses five sample colors with fake 555 numbers, shows a small TEST MODE badge, and has a **Reset test colors** link that frees every test color so you can cycle them and see the all-out message. FUB validation is a flag only (Verified agent column) and never blocks a submit. No FUB number routing.
 
 Return reminder texts are cancelled. `reminders.py` is unused. There is no return page or return link on the public site. Do not schedule 6:30 PM or 12 PM text jobs.
 
