@@ -122,13 +122,8 @@
     var noneEl = $('sign-sets-none');
     var total = 5;
     var left = null;
-    if (testMode) {
-      left = 3;
-      total = 5;
-    } else {
-      if (res && res.total != null && res.total !== '') total = Number(res.total);
-      if (res && res.ok && res.left != null && res.left !== '') left = Number(res.left);
-    }
+    if (res && res.total != null && res.total !== '') total = Number(res.total);
+    if (res && res.ok && res.left != null && res.left !== '') left = Number(res.left);
     if (totalEl) totalEl.textContent = String(total);
     if (countEl) countEl.textContent = left === null || isNaN(left) ? '—' : String(left);
     if (wrap) {
@@ -147,13 +142,20 @@
   }
 
   function refreshSetsLeft() {
-    if (testMode) {
-      renderSetsLeft({ ok: true, left: 3, total: 5 });
+    if (!execUrl) {
+      renderSetsLeft({ ok: false });
       return;
     }
-    api('available', {}, function (res) {
-      renderSetsLeft(res);
-    });
+    var url = execUrl + (execUrl.indexOf('?') >= 0 ? '&' : '?') + 'action=available';
+    if (testMode) url += '&test=1';
+    url += '&_=' + Date.now();
+    fetch(url, { method: 'GET', cache: 'no-store', redirect: 'follow' })
+      .then(function (r) { return r.text(); })
+      .then(function (text) {
+        try { renderSetsLeft(JSON.parse(text)); }
+        catch (e) { jsonp('available', {}, renderSetsLeft); }
+      })
+      .catch(function () { jsonp('available', {}, renderSetsLeft); });
   }
 
   function showFormAgain() {
@@ -273,7 +275,10 @@
     var hex = color.hex || '#1B365D';
     var text = color.text || contrastText(hex);
     var name = String(color.name || res.color_name || '').trim() || 'assigned';
-    var number = res.sign_display || formatPhone(res.sign_number) || res.sign_number || '';
+    var hasNumber = !!tenDigits(res.sign_number || res.sign_display || '');
+    var number = hasNumber
+      ? (res.sign_display || formatPhone(res.sign_number) || res.sign_number)
+      : (res.sign_display || 'Pending');
     var colorEl = $('confirm-color-name');
     var line = $('confirm-line');
     var screen = $('confirm-screen');

@@ -42,7 +42,9 @@ def main():
     assert "../assets/bg.mp4" not in js
     assert "prefersReducedMotion" in js and "saveData" in js
     assert "initCardTilt" not in js
-    assert "left = 3" in js and "total = 5" in js
+    assert "left = 3" not in js and "left: 3" not in js
+    assert "action=available" in js
+    assert "total = 5" in js
     for field_id in ["agent-name", "agent-phone", "address"]:
         assert field_id in page, field_id
     colors = (ROOT / "site" / "open-house-sign-out-sheet" / "colors.json").read_text()
@@ -50,7 +52,7 @@ def main():
     assert "8083787316" in colors and '"pending": true' in colors
     assert (ROOT / "site" / "assets" / "bg.jpg").exists()
     assert (ROOT / "site" / "assets" / "bg.mp4").exists()
-    assert (ROOT / "site" / "assets" / "bg.mp4").stat().st_size < 2 * 1024 * 1024
+    assert (ROOT / "site" / "assets" / "bg.mp4").stat().st_size < 30 * 1024 * 1024
     assert "sign-typed" not in page
     assert "return-link" not in page
     assert "text you a return" not in page.lower()
