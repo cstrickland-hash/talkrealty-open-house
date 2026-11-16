@@ -1,11 +1,10 @@
-Background media (swap these two files to use Christopher's clips later)
+Background media slot (not shown until enabled)
 
-  site/assets/bg.jpg   Poster still. Shown instantly; stays visible if video is skipped.
-  site/assets/bg.mp4   Muted looping clip. Keep this under 2MB when possible.
+  site/assets/bg.jpg   Optional poster still.
+  site/assets/bg.mp4   Muted looping clip.
 
-No other code change is required if the filenames stay the same.
-
-Placeholder now:
-  Derived from "Aerial View of Tropical Beachfront Villas" by Chris The Island
-  on Pexels (free license):
-  https://www.pexels.com/video/aerial-view-of-tropical-beachfront-villas-37958354/
+The live page currently uses a calm navy fallback (no video). When Christopher
+provides a replacement clip, put it at site/assets/bg.mp4 (and optional bg.jpg),
+then set SIGN_OUT_CONFIG.bgVideo to "../assets/bg.mp4" in
+site/open-house-sign-out-sheet/config.js. The page will lazy-load it, skip it
+when the phone prefers reduced motion or save-data, and cover the viewport.

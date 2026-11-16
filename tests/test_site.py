@@ -5,7 +5,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 TITLE = "Talk Realty Open House Sign Out Sheet"
-WARNING = "only signs that share that same phone number, no other ones"
+WARNING = "Take only the signs from the color section you are given"
 BANNED = ["C Strickland", "Christopher Strickland", "cstrickland"]
 
 SITE_FILES = [
@@ -35,11 +35,14 @@ def main():
     assert "wordmark" in page
     assert "sign-sets-left" in page and "Sign sets left" in page
     assert "sign-sets-left" in css
-    assert "warning-key" in page and "take only the signs from the color section you are given" in page
+    assert "warning-key" in page and "take only the signs from the color section you are given" in page.lower()
+    assert "Please read before you sign out signs" not in page
     assert "warning-icon" in page and "border-left: 6px solid" in css
-    assert "bg-video" in page and "assets/bg.mp4" in js and "assets/bg.jpg" in page
+    assert "bg-video" in page and "bgVideo" in js
+    assert "../assets/bg.mp4" not in js
     assert "prefersReducedMotion" in js and "saveData" in js
-    assert "initCardTilt" in js
+    assert "initCardTilt" not in js
+    assert "left = 3" in js and "total = 5" in js
     for field_id in ["agent-name", "agent-phone", "address"]:
         assert field_id in page, field_id
     colors = (ROOT / "site" / "open-house-sign-out-sheet" / "colors.json").read_text()

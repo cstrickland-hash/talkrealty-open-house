@@ -122,8 +122,13 @@
     var noneEl = $('sign-sets-none');
     var total = 5;
     var left = null;
-    if (res && res.total != null && res.total !== '') total = Number(res.total);
-    if (res && res.ok && res.left != null && res.left !== '') left = Number(res.left);
+    if (testMode) {
+      left = 3;
+      total = 5;
+    } else {
+      if (res && res.total != null && res.total !== '') total = Number(res.total);
+      if (res && res.ok && res.left != null && res.left !== '') left = Number(res.left);
+    }
     if (totalEl) totalEl.textContent = String(total);
     if (countEl) countEl.textContent = left === null || isNaN(left) ? '—' : String(left);
     if (wrap) {
@@ -142,6 +147,10 @@
   }
 
   function refreshSetsLeft() {
+    if (testMode) {
+      renderSetsLeft({ ok: true, left: 3, total: 5 });
+      return;
+    }
     api('available', {}, function (res) {
       renderSetsLeft(res);
     });
@@ -321,11 +330,12 @@
 
   function initBgVideo() {
     var video = $('bg-video');
-    if (!video) return;
+    var src = (cfg && cfg.bgVideo) || '';
+    if (!video || !src) return;
     if (prefersReducedMotion() || saveDataOrSlow()) return;
     var start = function () {
       if (!video.getAttribute('src')) {
-        video.setAttribute('src', '../assets/bg.mp4');
+        video.setAttribute('src', src);
         video.load();
       }
       var play = video.play();
@@ -342,37 +352,11 @@
     }
   }
 
-  function initCardTilt() {
-    var card = document.querySelector('.card');
-    if (!card || prefersReducedMotion()) return;
-    var max = 6;
-    var fine = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
-    var apply = function (x, y) {
-      x = Math.max(-1, Math.min(1, x));
-      y = Math.max(-1, Math.min(1, y));
-      card.style.transform = 'perspective(1200px) rotateX(' + (-y * max).toFixed(2) + 'deg) rotateY(' + (x * max).toFixed(2) + 'deg)';
-    };
-    var reset = function () { card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)'; };
-    if (fine) {
-      card.addEventListener('pointermove', function (e) {
-        var r = card.getBoundingClientRect();
-        if (!r.width || !r.height) return;
-        apply(((e.clientX - r.left) / r.width) * 2 - 1, ((e.clientY - r.top) / r.height) * 2 - 1);
-      });
-      card.addEventListener('pointerleave', reset);
-    }
-    window.addEventListener('deviceorientation', function (e) {
-      if (e.gamma == null || e.beta == null) return;
-      apply(e.gamma / 22, ((e.beta - 45) / 30));
-    }, { passive: true });
-  }
-
   function initSignOut() {
     var form = $('sign-out-form');
     if (!form) return;
     applyTestMode();
     initBgVideo();
-    initCardTilt();
     restoreAgent();
     bindReset('test-reset-link');
     bindReset('confirm-reset-link');
