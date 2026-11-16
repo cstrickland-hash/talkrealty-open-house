@@ -129,6 +129,30 @@ footer {
 }
 a { color: var(--navy); }
 
+.test-badge {
+  position: fixed;
+  top: 0.55rem;
+  right: 0.55rem;
+  z-index: 400;
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.22rem 0.48rem;
+  border: 1px solid var(--navy);
+}
+.test-reset-wrap {
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.test-reset-wrap a,
+.confirm-reset-wrap a {
+  font-weight: 700;
+}
+
 /* Full-screen assigned-color confirmation. */
 .confirm-screen {
   position: fixed;
@@ -147,7 +171,7 @@ a { color: var(--navy); }
 .confirm-screen.lit { opacity: 1; }
 .confirm-copy {
   text-align: center;
-  max-width: 20em;
+  max-width: min(22rem, 92vw);
   opacity: 0;
   transform: translateY(0.4rem);
   transition: opacity 0.7s ease 1.35s, transform 0.7s ease 1.35s;
@@ -157,28 +181,34 @@ a { color: var(--navy); }
   opacity: 1;
   transform: none;
 }
-.confirm-color {
+.confirm-line {
   margin: 0;
-  font-size: clamp(3.4rem, 18vw, 9rem);
-  font-weight: 800;
-  line-height: 0.95;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  font-size: clamp(1.7rem, 6vw, 3.15rem);
+  line-height: 1.22;
+  letter-spacing: 0.005em;
+}
+.confirm-color-name {
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 .confirm-number {
-  margin: 0.55rem 0 0;
-  font-size: clamp(1.8rem, 8vw, 4.4rem);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-}
-.confirm-msg {
-  margin: 1.35rem auto 0;
-  max-width: 16em;
-  font-size: clamp(1.2rem, 4.2vw, 2.05rem);
+  margin: 0.85rem 0 0;
+  font-family: "Source Sans 3", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: clamp(1.05rem, 3.4vw, 1.7rem);
   font-weight: 600;
-  line-height: 1.25;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
 }
+.confirm-reset-wrap {
+  margin: 1.35rem 0 0;
+  font-family: "Source Sans 3", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.confirm-reset-wrap a { color: inherit; }
 .all-out {
   position: fixed;
   inset: 0;
@@ -191,13 +221,23 @@ a { color: var(--navy); }
   color: var(--ink);
 }
 .all-out.hidden { display: none; }
+.all-out-inner {
+  max-width: 18em;
+  text-align: center;
+}
 .all-out p {
   margin: 0;
-  max-width: 18em;
   text-align: center;
   font-size: clamp(1.25rem, 4vw, 2rem);
   font-weight: 600;
   line-height: 1.35;
+  color: var(--navy);
+}
+.all-out .confirm-reset-wrap p,
+.all-out p.confirm-reset-wrap {
+  margin-top: 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--navy);
 }
 @media (prefers-reduced-motion: reduce) {

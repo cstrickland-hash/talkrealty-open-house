@@ -2,7 +2,15 @@
 
 Live public page: https://talkrealty-open-house.onrender.com/open-house-sign-out-sheet/
 
-Agents scan **one QR** and enter Name, Phone, and Open house location. The Apps Script backend assigns the next available sign color/number from `colors.json` (LockService so two submits cannot get the same color). The confirmation fills the screen with that color and says to go to that section of the wall. A color stays out until Thursday Task Desk approval marks it returned, which frees it.
+TEST page (writes only to the **TEST** tab, never the live Sign-Outs log):
+
+https://talkrealty-open-house.onrender.com/open-house-sign-out-sheet/?test=1
+
+(also `.../open-house-sign-out-sheet/test/`, which redirects to `?test=1`)
+
+Agents scan **one QR** and enter Name, Phone, and Open house location. The Apps Script backend assigns the next available sign color/number from `colors.json` (LockService so two submits cannot get the same color). The confirmation slowly fills the whole screen with that color (~1.8s; instant if the phone prefers reduced motion), then shows, in Playfair Display: "Your open house signs are the ones under the RED label." The color name is dynamic and uppercase in that line. The sign number sits smaller underneath, in a clean sans. A color stays out until Thursday Task Desk approval marks it returned, which frees it.
+
+TEST mode uses five sample colors with fake 555 numbers, shows a small TEST MODE badge, and has a **Reset test colors** link that frees every test color so you can cycle them and see the all-out message. FUB validation is a flag only (Verified agent column) and never blocks a submit. No FUB number routing.
 
 Return reminder texts are cancelled. `reminders.py` is unused. There is no return page or return link on the public site. Do not schedule 6:30 PM or 12 PM text jobs.
 
@@ -26,21 +34,23 @@ The card lists each currently-out color as one row (color, sign number, agent, s
 
 ```
 python3 /workspace/jarvis/open-house-signout/make_qr_sheet.py
+python3 /workspace/jarvis/open-house-signout/make_qr_sheet.py --test
 ```
 
-One poster QR for the single sign-out page, plus a printable wall-label PDF (color dot + number) for each color. Sample: 808-378-7316 is red. Add the rest of the numbers in `colors.json` later (and on the live `site/open-house-sign-out-sheet/colors.json`).
+One poster QR for the single (live) sign-out page, plus a printable wall-label PDF (color dot + number) for each color. The `--test` command writes a TEST MODE poster at `/workspace/jarvis/open-house-signout/talkrealty-open-house-sign-out-TEST-qr.png` that opens the TEST URL. Sample live color: 808-378-7316 is red. Add the rest of the numbers in `colors.json` later (and on the live `site/open-house-sign-out-sheet/colors.json`).
 
-## Apps Script — browser paste required for assign-on-submit
+## Apps Script — browser paste required (do this once)
 
-The live `/exec` URL should stay the same. In the Apps Script editor bound to the tracker Sheet:
+Paste the updated `Code.gs` only after the static site is deployed. The live `/exec` URL should stay the same. In the Apps Script editor bound to the tracker Sheet `15m6e7Kk3hcrJ9dYGqeDqPektmAQxjlY0sRtiEvPAlks`:
 
-1. Replace `Code.gs` with the local file `/workspace/jarvis/open-house-signout/Code.gs` (also copied at `apps-script/Code.gs`).
-2. Optional: Project Settings > Script properties > add `FUB_API_KEY` (same value as `.env`, never paste it in chat). This fills the **Verified agent** column by a read-only check of active FUB users. If omitted, new rows get `not checked`.
-3. Deploy > Manage deployments > the existing web app > **New version** (not a new deployment). Execute as Me, Anyone.
-4. Confirm `/exec?action=health` still returns ok and the `/exec` URL did not change.
-5. Then test one sign-out on the live page. The screen should fade into the assigned color. Delete that test row after, or mark it returned on Thursday.
+1. Open https://script.google.com and open the project bound to that Sheet, named **Talk Realty Open House Sign Out Sheet**.
+2. Open `Code.gs`. Select all and replace it with the entire contents of the local file `/workspace/jarvis/open-house-signout/Code.gs` (same text is also at `/workspace/jarvis/open-house-signout/apps-script/Code.gs`). Save (Ctrl/Cmd+S). Do not paste `.env` or any secrets into the file.
+3. Optional, if not already set: Project Settings (gear) > Script properties > add `FUB_API_KEY` (same value as `.env`; never paste it in chat). This only fills the **Verified agent** column from a read-only FUB users check and never blocks a submit. If omitted, new rows get `not checked`. Leave `EXPORT_SECRET` as it already is.
+4. Deploy > Manage deployments > the **existing** web app deployment > pencil / Edit > Version: **New version** (do not click "New deployment"). Execute as: Me. Who has access: Anyone. Deploy.
+5. Confirm the `/exec` URL did not change. Open `/exec?action=health` and confirm it returns ok. A first health call will also add an empty **TEST** tab (headers only) next to Sign-Outs; existing tabs stay as they are.
+6. Play on the TEST page first (`?test=1`), not the live form. Submit a few times to see colors cycle, then once more for the all-out message, then use **Reset test colors**. Rows land only on the TEST tab. After that is good, you can try one live sign-out and either delete that row or mark it returned on Thursday.
 
-Until this redeploy happens, the live form will show the new page but submit cannot assign a color (the deployed script still expects the old fields).
+Until this redeploy happens, the live/test form will show the new page but submit cannot assign a color or write to the TEST tab (the deployed script still expects the old fields).
 
 ## Older notes
 

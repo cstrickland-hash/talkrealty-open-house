@@ -4,6 +4,7 @@
   var execUrl = cfg.execUrl || '';
   var LS_NAME = 'talkrealty-oh-agent-name';
   var LS_PHONE = 'talkrealty-oh-agent-phone';
+  var testMode = false;
 
   function $(id) { return document.getElementById(id); }
 
@@ -63,6 +64,17 @@
     return L > 0.45 ? '#1A1A1A' : '#FFFFFF';
   }
 
+  function isTestMode() {
+    try {
+      var q = new URLSearchParams(window.location.search);
+      if (q.get('test') === '1' || String(q.get('mode') || '').toLowerCase() === 'test') return true;
+      var path = String(window.location.pathname || '');
+      return /\/open-house-sign-out-sheet\/test\/?$/.test(path);
+    } catch (e) {
+      return false;
+    }
+  }
+
   function rememberAgent() {
     try {
       var n = $('agent-name');
@@ -81,9 +93,67 @@
     } catch (e) {}
   }
 
+  function reveal(el) {
+    if (!el) return;
+    el.hidden = false;
+    el.classList.remove('hidden');
+  }
+
+  function hide(el) {
+    if (!el) return;
+    el.hidden = true;
+    el.classList.add('hidden');
+  }
+
+  function applyTestMode() {
+    testMode = isTestMode();
+    if (!testMode) return;
+    document.body.classList.add('test-mode');
+    reveal($('test-badge'));
+    reveal($('test-reset-wrap'));
+    reveal($('confirm-reset-wrap'));
+    reveal($('all-out-reset-wrap'));
+  }
+
+  function showFormAgain() {
+    var screen = $('confirm-screen');
+    if (screen) {
+      screen.classList.remove('lit', 'ready');
+      hide(screen);
+    }
+    hide($('all-out'));
+    var main = $('page-main');
+    var header = $('page-header');
+    if (main) main.classList.remove('hidden');
+    if (header) header.classList.remove('hidden');
+  }
+
+  function resetTestColors(cb) {
+    api('test-reset', { test: '1' }, function (res) {
+      showFormAgain();
+      var msg = $('form-msg');
+      if (res && res.ok) {
+        show(msg, 'ok', res.message || 'Test colors are free again. You can sign out once more.');
+      } else {
+        show(msg, 'error', 'Could not reset test colors. Please try again.');
+      }
+      if (cb) cb(res);
+    });
+  }
+
+  function bindReset(id) {
+    var el = $(id);
+    if (!el) return;
+    el.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      resetTestColors();
+    });
+  }
+
   function api(action, data, cb) {
     data = data || {};
     data.action = action;
+    if (testMode) data.test = '1';
     if (cfg.useGas && typeof google !== 'undefined' && google.script && google.script.run) {
       google.script.run.withSuccessHandler(cb).withFailureHandler(function () { cb({ ok: false, error: 'network' }); }).submit_(data);
       return;
@@ -123,6 +193,7 @@
     var params = [];
     data = data || {};
     data.action = action;
+    if (testMode) data.test = '1';
     data.callback = name;
     Object.keys(data).forEach(function (k) {
       if (data[k] === undefined || data[k] === null) return;
@@ -140,7 +211,10 @@
   function showAllOut(message) {
     var box = $('all-out');
     var p = $('all-out-msg');
-    if (p) p.textContent = message || 'All sign colors are currently signed out. Please call Christopher at Talk Realty.';
+    var fallback = testMode
+      ? 'All test sign colors are currently signed out. Reset test colors to free them and try again.'
+      : 'All sign colors are currently signed out. Please call Christopher at Talk Realty.';
+    if (p) p.textContent = message || fallback;
     if (box) {
       box.hidden = false;
       box.classList.remove('hidden');
@@ -157,14 +231,18 @@
     var text = color.text || contrastText(hex);
     var name = String(color.name || res.color_name || '').trim() || 'assigned';
     var number = res.sign_display || formatPhone(res.sign_number) || res.sign_number || '';
-    var msg = res.message || ('Go to the ' + name.toUpperCase() + ' section of the wall for your signs.');
+    var colorEl = $('confirm-color-name');
+    var line = $('confirm-line');
     var screen = $('confirm-screen');
     if (!screen) return;
     screen.style.setProperty('--fill-color', hex);
     screen.style.setProperty('--fill-text', text);
-    $('confirm-color').textContent = name;
+    if (colorEl) {
+      colorEl.textContent = name.toUpperCase();
+    } else if (line) {
+      line.textContent = 'Your open house signs are the ones under the ' + name.toUpperCase() + ' label.';
+    }
     $('confirm-number').textContent = number;
-    $('confirm-msg').textContent = msg;
     screen.hidden = false;
     screen.classList.remove('hidden');
     var start = function () { screen.classList.add('lit'); };
@@ -179,10 +257,30 @@
     window.setTimeout(function () { screen.classList.add('ready'); }, 1900);
   }
 
+  function maybeAutoReset() {
+    try {
+      var q = new URLSearchParams(window.location.search);
+      if (!testMode || q.get('reset') !== '1') return;
+      resetTestColors(function () {
+        try {
+          q.delete('reset');
+          var qs = q.toString();
+          var next = window.location.pathname + (qs ? '?' + qs : '');
+          window.history.replaceState({}, '', next);
+        } catch (e) {}
+      });
+    } catch (e) {}
+  }
+
   function initSignOut() {
     var form = $('sign-out-form');
     if (!form) return;
+    applyTestMode();
     restoreAgent();
+    bindReset('test-reset-link');
+    bindReset('confirm-reset-link');
+    bindReset('all-out-reset-link');
+    maybeAutoReset();
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
       var btn = $('submit-btn');

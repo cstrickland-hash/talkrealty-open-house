@@ -10,3 +10,13 @@ Code.gs.form-setup.bak
 *.pyc
 .DS_Store
 .secret_for_paste
+
+# Apps Script stays off the public repo (paste in the browser instead)
+Code.gs
+apps-script/
+Index.html
+Return.html
+*.xlsx
+qr/
+talkrealty-open-house-sign-out-TEST-qr.png
+talkrealty-open-house-sign-out-TEST-qr.pdf

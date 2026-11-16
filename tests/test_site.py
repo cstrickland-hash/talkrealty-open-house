@@ -37,11 +37,22 @@ def main():
     assert "return-link" not in page
     assert "text you a return" not in page.lower()
     assert "we will also text" not in page.lower()
-    assert "Go to the" in js and "section of the wall" in js
+    assert "Your open house signs are the ones under the" in page
+    assert "confirm-color-name" in page and "confirm-color-name" in js
+    assert ("Playfair Display" in page or "Playfair+Display" in page) and "Playfair Display" in css
+    assert "Source+Sans+3" in page or "Source Sans 3" in page
+    assert "Source Sans 3" in css
     assert "prefers-reduced-motion" in js and "prefers-reduced-motion" in css
     assert "confirm-screen" in page and "confirm-screen" in css
+    assert "transition: opacity 1.8s ease" in css
     assert "localStorage" in js
+    assert "TEST MODE" in page and "test-badge" in page
+    assert "test-reset" in js and "test-reset" in page
+    assert "testMode" in js and "q.get('test')" in js
+    assert (ROOT / "site" / "open-house-sign-out-sheet" / "test" / "index.html").exists()
     assert "Christopher Strickland" not in js
+    # CSS comment may mention box-shadow; only reject actual properties.
+    assert "box-shadow:" not in css
     print("site content tests passed")
     return 0
 

@@ -4,9 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Talk Realty Open House Sign Out Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div id="test-badge" class="test-badge hidden" hidden>TEST MODE</div>
   <header class="brand" id="page-header">
     <h1>Talk Realty Open House Sign Out Sheet</h1>
     <p>Honolulu · Talk Realty</p>
@@ -31,19 +35,27 @@
       <div id="form-msg" class="msg hidden"></div>
     </form>
 
+    <p id="test-reset-wrap" class="test-reset-wrap hidden">
+      <a id="test-reset-link" href="?test=1&amp;reset=1">Reset test colors</a>
+      so you can try again and see every color, then the all-out message.
+    </p>
+
     <footer>Talk Realty · Honolulu, Hawaii</footer>
   </main>
 
   <div id="confirm-screen" class="confirm-screen hidden" hidden aria-live="polite">
     <div class="confirm-copy">
-      <p id="confirm-color" class="confirm-color"></p>
+      <p id="confirm-line" class="confirm-line">Your open house signs are the ones under the <span id="confirm-color-name" class="confirm-color-name"></span> label.</p>
       <p id="confirm-number" class="confirm-number"></p>
-      <p id="confirm-msg" class="confirm-msg"></p>
+      <p id="confirm-reset-wrap" class="confirm-reset-wrap hidden"><a id="confirm-reset-link" href="?test=1&amp;reset=1">Reset test colors</a></p>
     </div>
   </div>
 
   <div id="all-out" class="all-out hidden" hidden role="alert">
-    <p id="all-out-msg">All sign colors are currently signed out. Please call Christopher at Talk Realty.</p>
+    <div class="all-out-inner">
+      <p id="all-out-msg">All sign colors are currently signed out. Please call Christopher at Talk Realty.</p>
+      <p id="all-out-reset-wrap" class="confirm-reset-wrap hidden"><a id="all-out-reset-link" href="?test=1&amp;reset=1">Reset test colors</a></p>
+    </div>
   </div>
 
   <script src="config.js"></script>

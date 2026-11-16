@@ -82,7 +82,7 @@ def qr_image(url: str, scale: int = 16) -> Image.Image:
     return Image.open(bio).convert("RGB")
 
 
-def poster_png(url: str, out: Path) -> Path:
+def poster_png(url: str, out: Path, *, test: bool = False) -> Path:
     """Simple printable poster: title, large QR, short instruction."""
     w, h = 2550, 3300  # 8.5x11 at 300 dpi
     img = Image.new("RGB", (w, h), CREAM)
@@ -96,14 +96,24 @@ def poster_png(url: str, out: Path) -> Path:
     t = "Talk Realty Open House Sign Out Sheet"
     bbox = draw.textbbox((0, 0), t, font=title)
     draw.text(((w - (bbox[2] - bbox[0])) / 2, 180), t, font=title, fill=NAVY)
-    s = "Scan to sign out open house signs"
+    s = "Scan to open the TEST sign-out page" if test else "Scan to sign out open house signs"
     bbox = draw.textbbox((0, 0), s, font=sub)
     draw.text(((w - (bbox[2] - bbox[0])) / 2, 340), s, font=sub, fill=INK)
+    if test:
+        badge = font(64, True)
+        label = "TEST MODE"
+        bb = draw.textbbox((0, 0), label, font=badge)
+        bw, bh = bb[2] - bb[0], bb[3] - bb[1]
+        bx = (w - bw) // 2
+        by = 420
+        pad_x, pad_y = 36, 16
+        draw.rectangle([bx - pad_x, by - pad_y, bx + bw + pad_x, by + bh + pad_y], fill=GOLD, outline=NAVY, width=6)
+        draw.text((bx, by), label, font=badge, fill=NAVY)
     qr = qr_image(url, scale=28)
     # Make the QR large and centered
-    target = 1700
+    target = 1600 if test else 1700
     qr = qr.resize((target, target), Image.Resampling.NEAREST)
-    x, y = (w - target) // 2, 520
+    x, y = (w - target) // 2, (620 if test else 520)
     img.paste(qr, (x, y))
     inst = "Open the camera on your phone and scan this code"
     bbox = draw.textbbox((0, 0), inst, font=cap)
@@ -211,25 +221,47 @@ def public_url() -> str:
     return DEFAULT_URL
 
 
+def test_url(base: str) -> str:
+    base = (base or public_url()).strip()
+    if not base.endswith("/"):
+        base += "/"
+    if "test=1" not in base:
+        joiner = "&" if "?" in base else "?"
+        base = base + joiner + "test=1"
+    return base
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", default="")
     ap.add_argument("--outdir", default=str(ROOT / "qr"))
     ap.add_argument("--colors", default=str(ROOT / "colors.json"))
+    ap.add_argument("--test", action="store_true", help="Generate the TEST MODE poster only")
     args = ap.parse_args(argv)
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    if args.test:
+        url = test_url(args.url or public_url())
+        sample = ROOT / "talkrealty-open-house-sign-out-TEST-qr.png"
+        poster_png(url, sample, test=True)
+        pdf = ROOT / "talkrealty-open-house-sign-out-TEST-qr.pdf"
+        poster_pdf(sample, pdf, url)
+        decoded = decode_qr(sample)
+        if decoded.rstrip("/") != url.rstrip("/"):
+            raise SystemExit(f"QR decoded to {decoded!r}, expected {url!r}")
+        print("url", url)
+        print("sample_png", sample)
+        print("sample_pdf", pdf)
+        print("decoded_ok", decoded)
+        return 0
     url = (args.url or public_url()).strip()
     if not url.endswith("/"):
         url += "/"
-    outdir = Path(args.outdir)
-    outdir.mkdir(parents=True, exist_ok=True)
     poster = outdir / "talkrealty-open-house-sign-out-sheet-qr-poster.png"
     poster_png(url, poster)
-    # Requested sample at the project root
-    sample = ROOT / "talkrealty-open-house-sign-out-TEST-qr.png"
-    poster_png(url, sample)
     pdf = outdir / "talkrealty-open-house-sign-out-sheet-qr-poster.pdf"
     poster_pdf(poster, pdf, url)
-    decoded = decode_qr(sample)
+    decoded = decode_qr(poster)
     if decoded.rstrip("/") != url.rstrip("/"):
         raise SystemExit(f"QR decoded to {decoded!r}, expected {url!r}")
     inv = load_colors(Path(args.colors))
@@ -241,7 +273,6 @@ def main(argv=None) -> int:
     labels_pdf(pngs, outdir / "wall-labels.pdf")
     print("url", url)
     print("poster_png", poster)
-    print("sample_png", sample)
     print("poster_pdf", pdf)
     print("wall_labels_pdf", outdir / "wall-labels.pdf")
     print("wall_label_count", len(pngs))
