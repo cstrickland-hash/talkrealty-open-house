@@ -173,6 +173,11 @@ header.brand h1 {
   color: var(--warn-ink);
 }
 
+.form-stage {
+  position: relative;
+  margin: 0.15rem 0 1rem;
+}
+.form-stage .card { margin: 0; }
 .card {
   background: var(--white);
   border: 1px solid rgba(255, 255, 255, 0.85);
@@ -372,44 +377,45 @@ a { color: var(--navy); }
 }
 .confirm-reset-wrap a { color: inherit; }
 
-.all-out {
-  position: fixed;
+/* When no colors are left, the form stays visible under a frosted overlay. */
+.form-stage .all-out-overlay {
+  position: absolute;
   inset: 0;
-  z-index: 200;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
-  background: rgba(22, 27, 46, 0.72);
-  color: var(--ink);
-}
-.all-out.hidden { display: none; }
-.all-out-inner {
-  max-width: 20rem;
-  text-align: center;
-  background: var(--cream);
-  border: 1px solid var(--line);
+  padding: 1.4rem 1.2rem;
+  background: rgba(247, 244, 238, 0.66);
+  backdrop-filter: blur(12px) saturate(1.05);
+  -webkit-backdrop-filter: blur(12px) saturate(1.05);
   border-radius: var(--radius);
-  padding: 1.6rem 1.3rem;
-}
-.all-out .sign-sets-left { margin: 0 auto 1rem; }
-.all-out p {
-  margin: 0;
-  text-align: center;
-  font-family: var(--serif);
-  font-size: clamp(1.2rem, 3.6vw, 1.7rem);
-  font-weight: 400;
-  line-height: 1.4;
   color: var(--navy);
+  text-align: center;
+}
+.all-out-overlay.hidden { display: none; }
+#sign-out-form.is-locked,
+#sign-out-form.is-locked input,
+#sign-out-form.is-locked button {
+  pointer-events: none;
+}
+.all-out-copy { max-width: 18.5rem; }
+.all-out-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.45rem, 4.4vw, 1.9rem);
+  line-height: 1.28;
   letter-spacing: 0.02em;
 }
-.all-out p.confirm-reset-wrap {
-  margin-top: 1.15rem;
-  font-family: var(--sans);
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.all-out-sub {
+  margin: 0.7rem 0 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  opacity: 0.88;
 }
 
 @media (max-width: 430px) {

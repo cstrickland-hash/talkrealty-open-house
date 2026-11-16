@@ -8,27 +8,35 @@ https://talkrealty-open-house.onrender.com/open-house-sign-out-sheet/?test=1
 
 (also `.../open-house-sign-out-sheet/test/`, which redirects to `?test=1`)
 
-Agents scan **one QR** and enter Name, Phone, and Open house location. The Apps Script backend assigns the next available sign color/number from `colors.json` (LockService so two submits cannot get the same color). The confirmation slowly fills the whole screen with that color (~1.8s; instant if the phone prefers reduced motion), then shows, in Playfair Display: "Your open house signs are the ones under the RED label." The color name is dynamic and uppercase in that line. Underneath, a smaller Playfair line says "Your open house signs phone number is," then the number on its own line in semi-bold Playfair, about the headline size or slightly smaller, or Pending if that color has no number yet. A color stays out until Thursday Task Desk approval marks it returned, which frees it.
+Agents scan **one QR** and enter Name, Phone, and Open house location. The Apps Script backend assigns the next available sign color/number from `colors.json` (LockService so two submits cannot get the same color). The confirmation slowly fills the whole screen with that color (~1.8s; instant if the phone prefers reduced motion), then shows, in Playfair Display: "Your open house signs are the ones under the RED label." The color name is dynamic and uppercase in that line. Underneath, a smaller Playfair line says "Your open house signs phone number is," then the number on its own line in semi-bold Playfair, about the headline size or slightly smaller, or Pending if that color has no number yet. A color stays out until Christopher taps Returned on the private admin page (linked from the Thursday 9 AM HST Task Desk card), which frees it, logs it, and handles the FUB inbox switch-back.
 
-Live inventory is five sign sets (Red 808-378-7316; Blue, Green, Yellow, and Orange numbers pending). The page shows a live **Sign sets left: X of 5** counter (`?action=available`, plus `test=1` in TEST mode). TEST mode uses five sample colors with fake 555 numbers and shows a small TEST MODE badge. The color reveal screen has no Reset test colors link, including in test mode, so agents never see it after they get their color. To free test colors, call the `test-reset` endpoint with `test=1` by API or curl (bot use only). Agents just drop signs off; Christopher marks returns weekly on the private admin page from the Thursday Task Desk card. FUB validation is a flag only (Verified agent column) and never blocks a submit. No FUB number routing.
+Live inventory is five sign sets (Red 808-378-7316; Blue, Green, Yellow, and Orange numbers pending). The page shows a live **Sign sets left: X of 5** counter (`?action=available`, plus `test=1` in TEST mode). TEST mode uses five sample colors with fake 555 numbers and shows a small TEST MODE badge. The color reveal screen has no Reset test colors link, including in test mode, so agents never see it after they get their color. When no colors are left, the form stays visible but disabled behind a frosted overlay that says "All open house signs are currently out" and "None are available right now. Please check back later."; that overlay has no reset link, and the server still rejects a submit when none are left. To free test colors, call the `test-reset` endpoint with `test=1` by API or curl (bot use only). Agents just drop signs off; Christopher marks returns weekly on the private admin page from the Thursday Task Desk card. FUB validation is a flag only (Verified agent column) and never blocks a submit. No FUB number routing.
 
 Return reminder texts are cancelled. `reminders.py` is unused. There is no return page or return link on the public site. Do not schedule 6:30 PM or 12 PM text jobs.
 
 ## Thursday Task Desk
 
-Routine command (posts one idempotent card; do not use until Christopher creates the routine):
+Agents just drop signs off and leave. Returns are marked on the private admin page, not on the card.
+
+Routine command (Thursday 9 AM HST; posts one idempotent card when at least one color is still out; do not use until Christopher creates the routine):
 
 ```
 python3 /workspace/jarvis/open-house-signout/thursday_card.py --post
 ```
 
-Dry run (prints the card, posts nothing):
+Dry run (prints a redacted card, posts nothing):
 
 ```
-python3 /workspace/jarvis/open-house-signout/thursday_card.py
+python3 /workspace/jarvis/open-house-signout/thursday_card.py --dry-run
 ```
 
-The card lists each currently-out color as one row (color, sign number, agent, sign-out date, location) with a Returned checkbox, plus one "Signs in office" count. Approving ticked colors writes Returned=Y to the Sheet and frees those colors. Number routing back to Christopher is later, after his list of numbers. No texts or emails.
+TEST Log dry run:
+
+```
+python3 /workspace/jarvis/open-house-signout/thursday_card.py --dry-run --test
+```
+
+The card lists each color still out (swatch, color, sign number, agent, location, days out). Colors out more than 7 days are marked carried over from last week. A private link on the card opens the admin returns page (`/exec?admin=...`), where Christopher taps Returned per color. That page frees the color, logs it, and handles the FUB inbox switch-back. The admin secret may appear only in that card link field in the desk state; never print it, log it, or put it in this doc. If no colors are out, the script skips posting. There is no in-card checklist and no "signs in office" count. ADMIN accepts ADMIN_SECRET or EXPORT_SECRET (V9). No texts or emails.
 
 ## QR posters and wall labels
 
@@ -48,7 +56,7 @@ Paste the updated `Code.gs` only after the static site is deployed. The live `/e
 3. Optional, if not already set: Project Settings (gear) > Script properties > add `FUB_API_KEY` (same value as `.env`; never paste it in chat). This only fills the **Verified agent** column from a read-only FUB users check and never blocks a submit. If omitted, new rows get `not checked`. Leave `EXPORT_SECRET` as it already is.
 4. Deploy > Manage deployments > the **existing** web app deployment > pencil / Edit > Version: **New version** (do not click "New deployment"). Execute as: Me. Who has access: Anyone. Deploy.
 5. Confirm the `/exec` URL did not change. Open `/exec?action=health` and confirm it returns ok. A first health call will also add an empty **TEST** tab (headers only) next to Sign-Outs; existing tabs stay as they are.
-6. Play on the TEST page first (`?test=1`), not the live form. Submit a few times to see colors cycle, then once more for the all-out message, then free the colors with a bot-only API call: POST `action=test-reset` with `test=1` to the Apps Script `/exec` URL. There is no reset link on the color reveal screen. Rows land only on the TEST tab. After that is good, you can try one live sign-out and either delete that row or mark it returned on Thursday.
+6. Play on the TEST page first (`?test=1`), not the live form. Submit a few times to see colors cycle, then open the page again to see the all-out overlay over the form, then free the colors with a bot-only API call: POST `action=test-reset` with `test=1` to the Apps Script `/exec` URL. There is no reset link on the color reveal screen. Rows land only on the TEST tab. After that is good, you can try one live sign-out and either delete that row or mark it returned on Thursday.
 
 Until this redeploy happens, the live/test form will show the new page but submit cannot assign a color or write to the TEST tab (the deployed script still expects the old fields).
 

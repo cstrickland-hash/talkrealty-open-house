@@ -111,7 +111,6 @@
     document.body.classList.add('test-mode');
     reveal($('test-badge'));
     reveal($('test-reset-wrap'));
-    reveal($('all-out-reset-wrap'));
   }
 
   function renderSetsLeft(res) {
@@ -133,11 +132,8 @@
       if (left === 0) reveal(noneEl);
       else hide(noneEl);
     }
-    var allOutLeft = $('all-out-left');
-    if (allOutLeft && total) {
-      allOutLeft.textContent = 'Sign sets left: ' + (left === 0 ? '0' : (left === null || isNaN(left) ? '—' : String(left))) + ' of ' + total;
-      allOutLeft.classList.toggle('is-zero', left === 0);
-    }
+    if (left === 0) showAllOut();
+    else if (left !== null && !isNaN(left)) hideAllOut();
   }
 
   function refreshSetsLeft() {
@@ -163,7 +159,7 @@
       screen.classList.remove('lit', 'ready');
       hide(screen);
     }
-    hide($('all-out'));
+    hideAllOut();
     var main = $('page-main');
     var header = $('page-header');
     if (main) main.classList.remove('hidden');
@@ -252,21 +248,47 @@
     document.head.appendChild(script);
   }
 
-  function showAllOut(message) {
+  var formLocked = false;
+
+  function setFormLocked(locked) {
+    formLocked = !!locked;
+    var form = $('sign-out-form');
+    var ids = ['agent-name', 'agent-phone', 'address', 'submit-btn'];
+    var i, el;
+    for (i = 0; i < ids.length; i++) {
+      el = $(ids[i]);
+      if (!el) continue;
+      el.disabled = formLocked;
+      if (formLocked) el.setAttribute('aria-disabled', 'true');
+      else el.removeAttribute('aria-disabled');
+    }
+    if (form) {
+      form.classList.toggle('is-locked', formLocked);
+      form.setAttribute('aria-disabled', formLocked ? 'true' : 'false');
+      if (formLocked) form.setAttribute('aria-hidden', 'true');
+      else form.removeAttribute('aria-hidden');
+      try {
+        if (formLocked && document.activeElement && form.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+      } catch (e) {}
+    }
+  }
+
+  function showAllOut() {
     var box = $('all-out');
-    var p = $('all-out-msg');
-    var fallback = testMode
-      ? 'All test sign colors are currently signed out. Reset test colors to free them and try again.'
-      : 'All sign colors are currently signed out. Please call Christopher at Talk Realty.';
-    if (p) p.textContent = message || fallback;
+    var title = $('all-out-msg');
+    if (title) title.textContent = 'All open house signs are currently out';
     if (box) {
       box.hidden = false;
       box.classList.remove('hidden');
     }
-    var main = $('page-main');
-    var header = $('page-header');
-    if (main) main.classList.add('hidden');
-    if (header) header.classList.add('hidden');
+    setFormLocked(true);
+  }
+
+  function hideAllOut() {
+    setFormLocked(false);
+    hide($('all-out'));
   }
 
   function showAssigned(res) {
@@ -380,11 +402,13 @@
     initBgVideo();
     restoreAgent();
     bindReset('test-reset-link');
-    bindReset('all-out-reset-link');
     refreshSetsLeft();
     maybeAutoReset();
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
+      if (formLocked || form.classList.contains('is-locked') || form.getAttribute('aria-disabled') === 'true') {
+        return;
+      }
       var btn = $('submit-btn');
       var msg = $('form-msg');
       var payload = {
@@ -405,7 +429,7 @@
         if (res && res.error === 'all_out') {
           rememberAgent();
           if (res.left != null) renderSetsLeft(res);
-          showAllOut(res.message);
+          else showAllOut();
           refreshSetsLeft();
           return;
         }

@@ -39,23 +39,31 @@
       <p><strong class="warning-key">Take only the signs from the color section you are given</strong>, and only signs that share that same phone number.</p>
     </div>
 
-    <form id="sign-out-form" class="card" novalidate>
-      <label for="agent-name">Name</label>
-      <input id="agent-name" name="agent_name" type="text" autocomplete="name" required>
+    <div class="form-stage" id="form-stage">
+      <form id="sign-out-form" class="card" novalidate>
+        <label for="agent-name">Name</label>
+        <input id="agent-name" name="agent_name" type="text" autocomplete="name" required>
 
-      <label for="agent-phone">Your Phone Number</label>
-      <input id="agent-phone" name="agent_phone" type="tel" inputmode="tel" autocomplete="tel" required>
+        <label for="agent-phone">Your Phone Number</label>
+        <input id="agent-phone" name="agent_phone" type="tel" inputmode="tel" autocomplete="tel" required>
 
-      <label for="address">Open house location</label>
-      <input id="address" name="address" type="text" autocomplete="street-address" required>
+        <label for="address">Open house location</label>
+        <input id="address" name="address" type="text" autocomplete="street-address" required>
 
-      <button type="submit" class="primary" id="submit-btn">Sign out these signs</button>
-      <div id="form-msg" class="msg hidden"></div>
-    </form>
+        <button type="submit" class="primary" id="submit-btn">Sign out these signs</button>
+        <div id="form-msg" class="msg hidden"></div>
+      </form>
+      <div id="all-out" class="all-out-overlay hidden" hidden role="alert" aria-live="polite">
+        <div class="all-out-copy">
+          <p id="all-out-msg" class="all-out-title">All open house signs are currently out</p>
+          <p class="all-out-sub">None are available right now. Please check back later.</p>
+        </div>
+      </div>
+    </div>
 
     <p id="test-reset-wrap" class="test-reset-wrap hidden">
       <a id="test-reset-link" href="?test=1&amp;reset=1">Reset test colors</a>
-      so you can try again and see every color, then the all-out message.
+      so you can try again and see every color, then the all-out overlay.
     </p>
 
     <footer>Talk Realty · Honolulu, Hawaii</footer>
@@ -71,13 +79,6 @@
     </div>
   </div>
 
-  <div id="all-out" class="all-out hidden" hidden role="alert">
-    <div class="all-out-inner">
-      <p id="all-out-left" class="sign-sets-left is-zero">Sign sets left: 0 of 5</p>
-      <p id="all-out-msg">All sign colors are currently signed out. Please call Christopher at Talk Realty.</p>
-      <p id="all-out-reset-wrap" class="confirm-reset-wrap hidden"><a id="all-out-reset-link" href="?test=1&amp;reset=1">Reset test colors</a></p>
-    </div>
-  </div>
 
   <script src="config.js"></script>
   <script src="app.js"></script>

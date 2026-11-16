@@ -78,10 +78,25 @@ def main():
     assert "TEST MODE" in page and "test-badge" in page
     assert "test-reset" in js and "test-reset" in page
     assert "confirm-reset-link" not in page
+    assert "all-out-reset-link" not in page
     # Reveal screen must never show a reset link, even in test mode.
-    confirm = page.split('id="confirm-screen"', 1)[1].split('id="all-out"', 1)[0]
+    confirm = page.split('id="confirm-screen"', 1)[1]
     assert "Reset test colors" not in confirm
     assert "confirm-reset" not in confirm
+    assert "All open house signs are currently out" in page
+    assert "None are available right now. Please check back later." in page
+    assert "all-out-overlay" in page and "all-out-overlay" in css
+    assert "backdrop-filter: blur(" in css
+    assert "formLocked" in js and "setFormLocked" in js
+    assert "pointer-events: none" in css
+    start = page.find('id="all-out"')
+    copy_at = page.find('all-out-copy', start)
+    # The overlay is a div wrapping all-out-copy; stop at the form-stage close that follows it.
+    end = page.find('id="test-reset-wrap"', start)
+    overlay = page[start:end if end > start else start + 600]
+    assert "all-out-copy" in overlay and copy_at != -1
+    assert "Reset test colors" not in overlay
+    assert "all-out-reset" not in overlay
     assert "testMode" in js and "q.get('test')" in js
     assert (ROOT / "site" / "open-house-sign-out-sheet" / "test" / "index.html").exists()
     assert "Christopher Strickland" not in js
