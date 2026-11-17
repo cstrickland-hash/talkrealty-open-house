@@ -141,6 +141,87 @@ header.brand h1 {
 }
 .sign-sets-none.hidden { display: none; }
 
+.sign-list {
+  width: 100%;
+  margin: 0.65rem auto 0;
+  padding: 0.7rem 0.85rem 0.75rem;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--navy);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: var(--radius);
+}
+.sign-list-kicker {
+  margin: 0 0 0.5rem;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--navy);
+}
+.sign-list-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.42rem;
+}
+.sign-list-item {
+  display: grid;
+  grid-template-columns: 0.7rem 4.4rem minmax(0, 1fr);
+  column-gap: 0.5rem;
+  align-items: start;
+}
+.sign-swatch {
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-top: 0.28rem;
+  border-radius: 50%;
+  border: 1px solid rgba(22, 27, 46, 0.18);
+  flex-shrink: 0;
+}
+.sign-color-name {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.84rem;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  padding-top: 0.06rem;
+}
+.sign-number-block {
+  min-width: 0;
+}
+.sign-number {
+  display: block;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+.sign-alt,
+.sign-example {
+  display: block;
+  margin: 0.08rem 0 0;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 0.68rem;
+  line-height: 1.3;
+  color: var(--muted);
+}
+.sign-list-note {
+  margin: 0.55rem 0 0;
+  text-align: center;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.sign-list-note.hidden { display: none; }
+
 .warning {
   display: flex;
   gap: 0.4rem;
@@ -367,6 +448,28 @@ a { color: var(--navy); }
   line-height: 1.15;
   letter-spacing: 0.08em;
 }
+.confirm-alt {
+  display: block;
+  margin: 0.4rem 0 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+  line-height: 1.3;
+  letter-spacing: 0.03em;
+  opacity: 0.9;
+}
+.confirm-example-note {
+  display: block;
+  margin: 0.55rem 0 0;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: clamp(0.7rem, 2.1vw, 0.82rem);
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  opacity: 0.82;
+}
+.confirm-alt.hidden,
+.confirm-example-note.hidden { display: none; }
 .confirm-reset-wrap {
   margin: 1.4rem 0 0;
   font-family: var(--sans);

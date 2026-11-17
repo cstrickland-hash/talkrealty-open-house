@@ -76,23 +76,23 @@ The admin secret may appear only in the Thursday card's private link field in th
 
 ## 5. Page rules
 
-- Inventory is five sign sets, from `colors.json` on the box and on the live site (`site/open-house-sign-out-sheet/colors.json`). Pending colors still count toward the 5.
+- Inventory is five sign sets, from `colors.json` on the box and on the live site (`site/open-house-sign-out-sheet/colors.json`). Pending colors still count toward the 5. Edit `colors.json` (keep the root copy in sync) to change numbers later.
 
-  | Color | Number |
-  |---|---|
-  | Red | 808-378-7316 |
-  | Blue | pending |
-  | Green | pending |
-  | Yellow | pending |
-  | Orange | pending |
+  | Color | Number | Status |
+  |---|---|---|
+  | Red | 808-378-7316 (also 808-670-1135) | Primary is live. 670-1135 is an example second line, pending Devin confirm. |
+  | Blue | 808-400-8551 | Example, pending Devin confirm. |
+  | Green | 808-518-6893 | Example, pending Devin confirm. |
+  | Yellow | 808-201-1994 | Example, pending Devin confirm. |
+  | Orange | pending | Fifth 2026 line not confirmed yet. |
 
-- The page shows a live **Sign sets left: X of 5** counter (`?action=available`, plus `test=1` in TEST mode).
+- The page shows a live **Sign sets left: X of 5** counter (`?action=available`, plus `test=1` in TEST mode), plus a compact **Sign numbers** list with each color, number, and a small "example, pending Devin confirm" note where applicable.
 - Luxury listing feel: Playfair Display + Inter Tight, navy `#161b2e`, cream `#f7f4ee`, Compass and Hawaii luxury blend. Christopher's own background clip loops with a crossfade. The form card stays fixed. Fonts: Playfair Display 400;500;600 and Inter Tight.
 - Color reveal: the screen fills slowly with the assigned color (~1.8s; instant if the phone prefers reduced motion), then shows in Playfair: "Your open house signs are the ones under the RED label." (color name is dynamic and uppercase). Underneath, a smaller Playfair line says **"Your open house signs phone number is"**, then the number on its own line, or **Pending** if that color has no number yet.
 - Number typography (locked after mobile feedback, t4901u): the number is the second-biggest line, `clamp(1.9rem, 8vw, 2.6rem)`, Playfair 600, letter-spacing `0.08em`, margin-top `0.85rem`. The label stays smaller: `clamp(0.95rem, 2.6vw, 1.2rem)`, Playfair 400. Confirm copy max-width is `min(28rem, 92vw)` so the label does not wrap a lone "is".
 - **No Reset test colors link on the color reveal screen**, including in `?test=1`, so agents never see it after they get a color (t4910u).
 - When zero colors are left, **do not** use a separate full-screen all-out takeover. Keep the form visible but disabled behind a soft frosted overlay over the fill-in bar / form card (t4915u). Centered copy: **"All open house signs are currently out"** and, smaller, **"None are available right now. Please check back later."** Overlay style: absolutely positioned over `.form-stage`, cream `rgba(247,244,238,0.66)`, `backdrop-filter: blur(12px) saturate(1.05)`, Playfair title. Agents must not type, focus, or submit: disable the name, phone, location, and submit controls, set `aria-disabled`, `pointer-events: none`, and guard the submit handler. Name/phone autofill must remain harmless. **No reset link on this overlay.** The server still rejects a submit when none are left (`error: all_out`). After a successful fifth sign-out, the color reveal still shows; on a later page load with zero left, the overlay shows.
-- Test mode (`?test=1`) writes only to the TEST Log and uses five sample colors with fake 555 numbers (Red starts at (808) 555-0101). A small TEST MODE badge is shown. A form-page "Reset test colors" link may still appear **below** the form card in test mode only; it is not on the reveal or the overlay. To free test colors, call `action=test-reset` with `test=1` by API or curl (**bot use only**). `resetTest_` uses the TEST Log only (`sheet_(true)`). **Never reset or write the live log** (it may show 4 of 5 because of Christopher's own Red test row).
+- Test mode (`?test=1`) writes only to the TEST Log and uses five sample colors with fake 555 numbers (Red starts at (808) 555-0101). A small TEST MODE badge is shown. A form-page "Reset test colors" link may still appear **below** the form card in test mode only; it is not on the reveal or the overlay. To free test colors, call `action=test-reset` with `test=1` by API or curl (**bot use only**). `resetTest_` uses the TEST Log only (`sheet_(true)`). **Never delete live log rows.** Leftover owner test rows (Red on Nov 15, Blue on Nov 16) were marked Returned (not deleted) on Nov 16 so the live counter can show all 5 in the office.
 - localStorage autofill is per device: keys `talkrealty-oh-agent-name` and `talkrealty-oh-agent-phone`. Name and phone are restored on load (`restoreAgent`) and saved after a successful submit or an all-out response (`rememberAgent`). Autofill may populate fields even when the all-out overlay later locks the form; that is harmless.
 - Instruction on the form: a compact bold-bordered alert, "Take only the signs from the color section you are given, and only signs that share that same phone number."
 - FUB validation is a flag only (Verified agent column) and never blocks a submit.
@@ -145,8 +145,8 @@ The site-down response routine should alert Christopher and follow the path abov
 
 ## 9. Pending items
 
-- Sign color numbers for Blue, Green, Yellow, and Orange are awaiting Devin / Christopher confirmation. Live Red is 808-378-7316. Christopher emailed Devin to confirm on Nov 15, 2026, 8:55 PM HST. The answer is due from Devin or at the Nov 16 meeting.
-- 2026 sign line candidates (from `/workspace/jarvis/open-house-signout/sign-lines-2026.md`, read only from FUB; **unconfirmed**, do not put these on signs or in `colors.json` until Christopher or Devin confirm):
+- Sign color numbers for Blue, Green, and Yellow are on the live page as **examples only**, marked "example, pending Devin confirm," from the 2026 lines proposed to Devin on Nov 15. They are not final until Devin or Christopher confirms them. Live Red remains 808-378-7316. 808-670-1135 is shown as a possible second Red line (example). Orange / the fifth line is still blank. Christopher emailed Devin to confirm on Nov 15, 2026, 8:55 PM HST.
+- 2026 sign line candidates (from `/workspace/jarvis/open-house-signout/sign-lines-2026.md`, read only from FUB). These example numbers are now in `colors.json` and on the public sign list, clearly labeled as examples until confirmed. Do not print new physical sign riders from them until Christopher or Devin confirm:
   - Red: 808-378-7316 (the "talk oh signs (new 2026)" inbox, assigned only to Sophia Cretu). 808-670-1135 sits on the same inbox; it is unclear whether it is a second number or its own set.
   - 808-400-8551 ("talk Generic Open House Signs (new 2026)", no users assigned)
   - 808-518-6893 ("talk realty - Open House Sign")
@@ -166,6 +166,10 @@ The site-down response routine should alert Christopher and follow the path abov
 ## 11. Change log
 
 Add a dated line here the same day as any change to the site, Apps Script, inventory, returns flow, routines, or this doc.
+
+### 2026-11-16 (Hawaii / Pacific/Honolulu)
+
+- **~11:20 PM HST (t5107u).** The public page now lists each sign set with its phone number so signs are identifiable. Blue 808-400-8551, Green 808-518-6893, and Yellow 808-201-1994 are shown as examples pending Devin confirm; Red keeps 808-378-7316 and lists 808-670-1135 as a possible second example line; Orange stays blank. Numbers live in `colors.json` so they are easy to edit later. The two leftover owner test sign-outs (Red Nov 15 "Remove this in 1 min Jarvis", Blue Nov 16 "123 bana") were marked Returned, not deleted, so the live counter can show 5 of 5 in the office. Apps Script fallback palette was updated locally; the live script will pick up `colors.json` from the static site after the Render deploy. No admin tokens printed, and no emails or texts were sent.
 
 ### 2026-11-15 (Hawaii / Pacific/Honolulu)
 

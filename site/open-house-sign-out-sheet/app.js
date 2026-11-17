@@ -312,6 +312,19 @@
       line.textContent = 'Your open house signs are the ones under the ' + name.toUpperCase() + ' label.';
     }
     $('confirm-number').textContent = number;
+    var meta = inventoryById(color.id || color.name || res.color_name) || inventoryByNumber(res.sign_number || res.sign_display || number);
+    var altText = "";
+    var noteText = "";
+    if (meta && meta.alt_numbers && meta.alt_numbers.length) {
+      altText = "also " + meta.alt_numbers.join(", ");
+      if (meta.example_alt && !testMode) altText += " · " + (meta.label || exampleLabelDefault);
+    }
+    if (meta && meta.example && !testMode) {
+      noteText = meta.label || exampleLabelDefault;
+    } else if (meta && meta.example_alt && !testMode && !noteText) {
+      noteText = meta.label || exampleLabelDefault;
+    }
+    setConfirmExtra(altText, noteText);
     screen.hidden = false;
     screen.classList.remove('hidden');
     var start = function () { screen.classList.add('lit'); };
@@ -395,6 +408,192 @@
     }
   }
 
+  var signInventory = [];
+  var exampleLabelDefault = "example, pending Devin confirm";
+
+  function colorsUrl() {
+    try {
+      return new URL("colors.json", window.location.href).toString();
+    } catch (e) {
+      return "colors.json";
+    }
+  }
+
+  function formatAltList(alts, formatFn) {
+    var out = [];
+    var i, formatted;
+    alts = alts || [];
+    for (i = 0; i < alts.length; i++) {
+      formatted = formatFn(alts[i]);
+      if (formatted) out.push(formatted);
+    }
+    return out;
+  }
+
+  function itemFromColor(c, label) {
+    if (!c) return null;
+    var number = tenDigits(c.number || "");
+    var alts = formatAltList(c.alt_numbers || c.altNumbers || [], formatPhone);
+    var example = c.example === true;
+    var exampleAlt = c.example_alt === true || c.exampleAlt === true;
+    return {
+      id: String(c.id || "").toLowerCase(),
+      name: String(c.name || c.id || ""),
+      hex: String(c.hex || ""),
+      border: String(c.border || ""),
+      number: number,
+      display: number ? formatPhone(number) : "",
+      alt_numbers: alts,
+      example: example,
+      example_alt: exampleAlt,
+      pending: !number || c.pending === true,
+      label: label || exampleLabelDefault
+    };
+  }
+
+  function renderSignList(items, label) {
+    var list = $("sign-list-items");
+    var note = $("sign-list-note");
+    var wrap = $("sign-list");
+    var i, it, li, swatch, nameEl, block, numEl, altEl, exEl, hasExample;
+    if (!list || !wrap) return;
+    list.textContent = "";
+    items = items || [];
+    hasExample = false;
+    label = label || exampleLabelDefault;
+    for (i = 0; i < items.length; i++) {
+      it = items[i];
+      if (!it) continue;
+      li = document.createElement("li");
+      li.className = "sign-list-item";
+      swatch = document.createElement("span");
+      swatch.className = "sign-swatch";
+      swatch.style.background = it.hex || "#161b2e";
+      if (it.border) swatch.style.borderColor = it.border;
+      swatch.setAttribute("aria-hidden", "true");
+      nameEl = document.createElement("span");
+      nameEl.className = "sign-color-name";
+      nameEl.textContent = it.name || it.id || "";
+      block = document.createElement("div");
+      block.className = "sign-number-block";
+      numEl = document.createElement("span");
+      numEl.className = "sign-number";
+      numEl.textContent = it.display || "Number pending";
+      block.appendChild(numEl);
+      if (it.alt_numbers && it.alt_numbers.length) {
+        altEl = document.createElement("span");
+        altEl.className = "sign-alt";
+        altEl.textContent = "also " + it.alt_numbers.join(", ") + (it.example_alt ? " · " + label : "");
+        block.appendChild(altEl);
+      }
+      if (it.example) {
+        hasExample = true;
+        exEl = document.createElement("span");
+        exEl.className = "sign-example";
+        exEl.textContent = label;
+        block.appendChild(exEl);
+      } else if (it.example_alt) {
+        hasExample = true;
+      }
+      li.appendChild(swatch);
+      li.appendChild(nameEl);
+      li.appendChild(block);
+      list.appendChild(li);
+    }
+    if (note) {
+      if (hasExample && !testMode) {
+        note.textContent = "Numbers marked as examples are pending Devin confirm and can be edited later.";
+        reveal(note);
+      } else {
+        note.textContent = "";
+        hide(note);
+      }
+    }
+    if (items.length) reveal(wrap);
+  }
+
+  function applyInventory(items, label) {
+    signInventory = items || [];
+    renderSignList(signInventory, label);
+  }
+
+  function inventoryById(id) {
+    var i, needle;
+    needle = String(id || "").toLowerCase();
+    if (!needle) return null;
+    for (i = 0; i < signInventory.length; i++) {
+      if (signInventory[i] && signInventory[i].id === needle) return signInventory[i];
+    }
+    return null;
+  }
+
+  function inventoryByNumber(num) {
+    var i, d;
+    d = tenDigits(num || "");
+    if (!d) return null;
+    for (i = 0; i < signInventory.length; i++) {
+      if (signInventory[i] && signInventory[i].number === d) return signInventory[i];
+    }
+    return null;
+  }
+
+  function loadSignList() {
+    if (testMode) {
+      if (!execUrl) return;
+      var url = execUrl + (execUrl.indexOf("?") >= 0 ? "&" : "?") + "action=numbers&test=1&_=" + Date.now();
+      fetch(url, { method: "GET", cache: "no-store", redirect: "follow" })
+        .then(function (r) { return r.text(); })
+        .then(function (text) {
+          var res, items, i;
+          try { res = JSON.parse(text); } catch (e) { return; }
+          items = [];
+          if (res && res.colors && res.colors.length) {
+            for (i = 0; i < res.colors.length; i++) items.push(itemFromColor(res.colors[i], ""));
+          }
+          applyInventory(items, "");
+        })
+        .catch(function () {});
+      return;
+    }
+    fetch(colorsUrl() + "?_=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var pal = (data && data.palette) || [];
+        var label = (data && data.example_label) || exampleLabelDefault;
+        var items = [];
+        var i, it;
+        for (i = 0; i < pal.length; i++) {
+          it = itemFromColor(pal[i], label);
+          if (it && it.id) items.push(it);
+        }
+        applyInventory(items, label);
+      })
+      .catch(function () {});
+  }
+
+  function setConfirmExtra(altText, noteText) {
+    var alt = $("confirm-alt");
+    var note = $("confirm-example-note");
+    if (alt) {
+      if (altText) {
+        alt.textContent = altText;
+        reveal(alt);
+      } else {
+        alt.textContent = "";
+        hide(alt);
+      }
+    }
+    if (note) {
+      if (noteText) {
+        note.textContent = noteText;
+        reveal(note);
+      } else {
+        note.textContent = "";
+        hide(note);
+      }
+    }
+  }
+
   function initSignOut() {
     var form = $('sign-out-form');
     if (!form) return;
@@ -402,6 +601,7 @@
     initBgVideo();
     restoreAgent();
     bindReset('test-reset-link');
+    loadSignList();
     refreshSetsLeft();
     maybeAutoReset();
     form.addEventListener('submit', function (ev) {

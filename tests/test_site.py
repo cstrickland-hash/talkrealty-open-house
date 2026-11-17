@@ -49,7 +49,17 @@ def main():
         assert field_id in page, field_id
     colors = (ROOT / "site" / "open-house-sign-out-sheet" / "colors.json").read_text()
     assert colors.count('"id"') == 5
-    assert "8083787316" in colors and '"pending": true' in colors
+    assert "8083787316" in colors
+    assert "8086701135" in colors
+    assert "8084008551" in colors
+    assert "8085186893" in colors
+    assert "8082011994" in colors
+    assert "example, pending Devin confirm" in colors
+    assert '"pending": true' in colors  # Orange / fifth line still unconfirmed
+    assert "sign-list" in page and "sign-list-items" in page
+    assert "sign-list" in css and "sign-example" in css
+    assert "confirm-example-note" in page and "confirm-alt" in page
+    assert "loadSignList" in js and "exampleLabelDefault" in js
     assert (ROOT / "site" / "assets" / "bg.jpg").exists()
     assert (ROOT / "site" / "assets" / "bg.mp4").exists()
     assert (ROOT / "site" / "assets" / "bg.mp4").stat().st_size < 30 * 1024 * 1024
