@@ -56,10 +56,13 @@ def main():
     assert "8082011994" in colors
     assert "example, pending Devin confirm" in colors
     assert '"pending": true' in colors  # Orange / fifth line still unconfirmed
-    assert "sign-list" in page and "sign-list-items" in page
-    assert "sign-list" in css and "sign-example" in css
+    assert 'id="sign-list"' not in page and "Sign numbers" not in page
+    assert "sign-list-items" not in page
     assert "confirm-example-note" in page and "confirm-alt" in page
-    assert "loadSignList" in js and "exampleLabelDefault" in js
+    assert "confirm-example-note" in css and "confirm-alt" in css
+    assert "loadInventory" in js and "exampleLabelDefault" in js
+    assert "colors.json" in js
+    assert "withInventory" in js
     assert (ROOT / "site" / "assets" / "bg.jpg").exists()
     assert (ROOT / "site" / "assets" / "bg.mp4").exists()
     assert (ROOT / "site" / "assets" / "bg.mp4").stat().st_size < 30 * 1024 * 1024

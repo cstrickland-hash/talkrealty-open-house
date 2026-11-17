@@ -296,10 +296,6 @@
     var hex = color.hex || '#1B365D';
     var text = color.text || contrastText(hex);
     var name = String(color.name || res.color_name || '').trim() || 'assigned';
-    var hasNumber = !!tenDigits(res.sign_number || res.sign_display || '');
-    var number = hasNumber
-      ? (res.sign_display || formatPhone(res.sign_number) || res.sign_number)
-      : (res.sign_display || 'Pending');
     var colorEl = $('confirm-color-name');
     var line = $('confirm-line');
     var screen = $('confirm-screen');
@@ -311,19 +307,38 @@
     } else if (line) {
       line.textContent = 'Your open house signs are the ones under the ' + name.toUpperCase() + ' label.';
     }
-    $('confirm-number').textContent = number;
-    var meta = inventoryById(color.id || color.name || res.color_name) || inventoryByNumber(res.sign_number || res.sign_display || number);
-    var altText = "";
-    var noteText = "";
-    if (meta && meta.alt_numbers && meta.alt_numbers.length) {
-      altText = "also " + meta.alt_numbers.join(", ");
+    function paintConfirm(meta) {
+      var apiDigits = tenDigits(res.sign_number || res.sign_display || '');
+      var apiDisplay = res.sign_display || formatPhone(res.sign_number) || '';
+      var number = 'Pending';
+      var altText = '';
+      var noteText = '';
+      // Live mode: prefer colors.json so the confirm screen is right even if
+      // the backend still only knows Red.
+      if (!testMode && meta && meta.display) {
+        number = meta.display;
+      } else if (apiDigits) {
+        number = formatPhone(apiDigits) || apiDisplay;
+      } else if (apiDisplay && String(apiDisplay).toLowerCase() !== 'pending') {
+        number = apiDisplay;
+      } else if (meta && meta.display) {
+        number = meta.display;
+      }
+      if (!testMode && meta && meta.alt_numbers && meta.alt_numbers.length) {
+        altText = 'also ' + meta.alt_numbers.join(', ');
+      }
+      if (!testMode && meta && (meta.example || meta.example_alt)) {
+        noteText = meta.label || exampleLabelDefault;
+      }
+      $('confirm-number').textContent = number;
+      setConfirmExtra(altText, noteText);
     }
-    if (meta && meta.example && !testMode) {
-      noteText = meta.label || exampleLabelDefault;
-    } else if (meta && meta.example_alt && !testMode && !noteText) {
-      noteText = meta.label || exampleLabelDefault;
-    }
-    setConfirmExtra(altText, noteText);
+    var lookupId = color.id || color.name || res.color_name;
+    var lookupNum = res.sign_number || res.sign_display || '';
+    withInventory(function () {
+      var meta = inventoryById(lookupId) || inventoryByNumber(lookupNum);
+      paintConfirm(meta);
+    });
     screen.hidden = false;
     screen.classList.remove('hidden');
     var start = function () { screen.classList.add('lit'); };
@@ -450,68 +465,30 @@
     };
   }
 
-  function renderSignList(items, label) {
-    var list = $("sign-list-items");
-    var note = $("sign-list-note");
-    var wrap = $("sign-list");
-    var i, it, li, swatch, nameEl, block, numEl, altEl, exEl, hasExample;
-    if (!list || !wrap) return;
-    list.textContent = "";
-    items = items || [];
-    hasExample = false;
-    label = label || exampleLabelDefault;
-    for (i = 0; i < items.length; i++) {
-      it = items[i];
-      if (!it) continue;
-      li = document.createElement("li");
-      li.className = "sign-list-item";
-      swatch = document.createElement("span");
-      swatch.className = "sign-swatch";
-      swatch.style.background = it.hex || "#161b2e";
-      if (it.border) swatch.style.borderColor = it.border;
-      swatch.setAttribute("aria-hidden", "true");
-      nameEl = document.createElement("span");
-      nameEl.className = "sign-color-name";
-      nameEl.textContent = it.name || it.id || "";
-      block = document.createElement("div");
-      block.className = "sign-number-block";
-      numEl = document.createElement("span");
-      numEl.className = "sign-number";
-      numEl.textContent = it.display || "Number pending";
-      block.appendChild(numEl);
-      if (it.alt_numbers && it.alt_numbers.length) {
-        altEl = document.createElement("span");
-        altEl.className = "sign-alt";
-        altEl.textContent = "also " + it.alt_numbers.join(", ");
-        block.appendChild(altEl);
-      }
-      if (it.example || it.example_alt) {
-        hasExample = true;
-        exEl = document.createElement("span");
-        exEl.className = "sign-example";
-        exEl.textContent = label;
-        block.appendChild(exEl);
-      }
-      li.appendChild(swatch);
-      li.appendChild(nameEl);
-      li.appendChild(block);
-      list.appendChild(li);
-    }
-    if (note) {
-      if (hasExample && !testMode) {
-        note.textContent = "Numbers marked as examples are pending Devin confirm.";
-        reveal(note);
-      } else {
-        note.textContent = "";
-        hide(note);
-      }
-    }
-    if (items.length) reveal(wrap);
+  var inventoryReady = false;
+  var inventoryWaiters = [];
+
+  function applyInventory(items) {
+    signInventory = items || [];
+    inventoryReady = true;
+    var waiters = inventoryWaiters.slice();
+    inventoryWaiters = [];
+    var i;
+    for (i = 0; i < waiters.length; i++) waiters[i](signInventory);
   }
 
-  function applyInventory(items, label) {
-    signInventory = items || [];
-    renderSignList(signInventory, label);
+  function withInventory(cb) {
+    if (inventoryReady) {
+      cb(signInventory);
+      return;
+    }
+    inventoryWaiters.push(cb);
+    // Do not wait forever if colors.json is slow or missing.
+    window.setTimeout(function () {
+      if (inventoryWaiters.indexOf(cb) === -1) return;
+      inventoryWaiters = inventoryWaiters.filter(function (w) { return w !== cb; });
+      cb(signInventory);
+    }, 2500);
   }
 
   function inventoryById(id) {
@@ -534,22 +511,11 @@
     return null;
   }
 
-  function loadSignList() {
+  function loadInventory() {
+    // Live confirmations read colors.json so the assigned number shows even
+    // if Apps Script still only has Red. Test mode uses the backend 555 set.
     if (testMode) {
-      if (!execUrl) return;
-      var url = execUrl + (execUrl.indexOf("?") >= 0 ? "&" : "?") + "action=numbers&test=1&_=" + Date.now();
-      fetch(url, { method: "GET", cache: "no-store", redirect: "follow" })
-        .then(function (r) { return r.text(); })
-        .then(function (text) {
-          var res, items, i;
-          try { res = JSON.parse(text); } catch (e) { return; }
-          items = [];
-          if (res && res.colors && res.colors.length) {
-            for (i = 0; i < res.colors.length; i++) items.push(itemFromColor(res.colors[i], ""));
-          }
-          applyInventory(items, "");
-        })
-        .catch(function () {});
+      applyInventory([]);
       return;
     }
     fetch(colorsUrl() + "?_=" + Date.now(), { cache: "no-store" })
@@ -563,9 +529,9 @@
           it = itemFromColor(pal[i], label);
           if (it && it.id) items.push(it);
         }
-        applyInventory(items, label);
+        applyInventory(items);
       })
-      .catch(function () {});
+      .catch(function () { applyInventory([]); });
   }
 
   function setConfirmExtra(altText, noteText) {
@@ -598,7 +564,7 @@
     initBgVideo();
     restoreAgent();
     bindReset('test-reset-link');
-    loadSignList();
+    loadInventory();
     refreshSetsLeft();
     maybeAutoReset();
     form.addEventListener('submit', function (ev) {
