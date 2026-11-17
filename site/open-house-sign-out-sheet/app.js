@@ -317,7 +317,6 @@
     var noteText = "";
     if (meta && meta.alt_numbers && meta.alt_numbers.length) {
       altText = "also " + meta.alt_numbers.join(", ");
-      if (meta.example_alt && !testMode) altText += " · " + (meta.label || exampleLabelDefault);
     }
     if (meta && meta.example && !testMode) {
       noteText = meta.label || exampleLabelDefault;
@@ -483,17 +482,15 @@
       if (it.alt_numbers && it.alt_numbers.length) {
         altEl = document.createElement("span");
         altEl.className = "sign-alt";
-        altEl.textContent = "also " + it.alt_numbers.join(", ") + (it.example_alt ? " · " + label : "");
+        altEl.textContent = "also " + it.alt_numbers.join(", ");
         block.appendChild(altEl);
       }
-      if (it.example) {
+      if (it.example || it.example_alt) {
         hasExample = true;
         exEl = document.createElement("span");
         exEl.className = "sign-example";
         exEl.textContent = label;
         block.appendChild(exEl);
-      } else if (it.example_alt) {
-        hasExample = true;
       }
       li.appendChild(swatch);
       li.appendChild(nameEl);
@@ -502,7 +499,7 @@
     }
     if (note) {
       if (hasExample && !testMode) {
-        note.textContent = "Numbers marked as examples are pending Devin confirm and can be edited later.";
+        note.textContent = "Numbers marked as examples are pending Devin confirm.";
         reveal(note);
       } else {
         note.textContent = "";
