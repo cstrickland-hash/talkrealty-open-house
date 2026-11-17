@@ -50,7 +50,8 @@ def main():
     colors = (ROOT / "site" / "open-house-sign-out-sheet" / "colors.json").read_text()
     assert colors.count('"id"') == 5
     assert "8083787316" in colors
-    assert "8086701135" in colors
+    assert "8086701135" not in colors
+    assert "alt_numbers" not in colors
     assert "8084008551" in colors
     assert "8085186893" in colors
     assert "8082011994" in colors
@@ -60,6 +61,8 @@ def main():
     assert "sign-list-items" not in page
     assert "confirm-example-note" in page and "confirm-alt" in page
     assert "confirm-example-note" in css and "confirm-alt" in css
+    assert "alt_numbers" not in js
+    assert "also " not in js
     assert "loadInventory" in js and "exampleLabelDefault" in js
     assert "colors.json" in js
     assert "withInventory" in js

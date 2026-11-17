@@ -311,10 +311,10 @@
       var apiDigits = tenDigits(res.sign_number || res.sign_display || '');
       var apiDisplay = res.sign_display || formatPhone(res.sign_number) || '';
       var number = 'Pending';
-      var altText = '';
       var noteText = '';
       // Live mode: prefer colors.json so the confirm screen is right even if
-      // the backend still only knows Red.
+      // the backend still only knows Red. Show only the one number for this
+      // color — never a second or alt line.
       if (!testMode && meta && meta.display) {
         number = meta.display;
       } else if (apiDigits) {
@@ -324,14 +324,11 @@
       } else if (meta && meta.display) {
         number = meta.display;
       }
-      if (!testMode && meta && meta.alt_numbers && meta.alt_numbers.length) {
-        altText = 'also ' + meta.alt_numbers.join(', ');
-      }
-      if (!testMode && meta && (meta.example || meta.example_alt)) {
+      if (!testMode && meta && meta.example) {
         noteText = meta.label || exampleLabelDefault;
       }
       $('confirm-number').textContent = number;
-      setConfirmExtra(altText, noteText);
+      setConfirmExtra('', noteText);
     }
     var lookupId = color.id || color.name || res.color_name;
     var lookupNum = res.sign_number || res.sign_display || '';
@@ -433,23 +430,10 @@
     }
   }
 
-  function formatAltList(alts, formatFn) {
-    var out = [];
-    var i, formatted;
-    alts = alts || [];
-    for (i = 0; i < alts.length; i++) {
-      formatted = formatFn(alts[i]);
-      if (formatted) out.push(formatted);
-    }
-    return out;
-  }
-
   function itemFromColor(c, label) {
     if (!c) return null;
     var number = tenDigits(c.number || "");
-    var alts = formatAltList(c.alt_numbers || c.altNumbers || [], formatPhone);
     var example = c.example === true;
-    var exampleAlt = c.example_alt === true || c.exampleAlt === true;
     return {
       id: String(c.id || "").toLowerCase(),
       name: String(c.name || c.id || ""),
@@ -457,9 +441,7 @@
       border: String(c.border || ""),
       number: number,
       display: number ? formatPhone(number) : "",
-      alt_numbers: alts,
       example: example,
-      example_alt: exampleAlt,
       pending: !number || c.pending === true,
       label: label || exampleLabelDefault
     };

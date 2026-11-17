@@ -7,9 +7,7 @@
       "text": "#FFFFFF",
       "border": "#B42525",
       "number": "8083787316",
-      "alt_numbers": ["8086701135"],
-      "example": false,
-      "example_alt": true
+      "example": false
     },
     {
       "id": "blue",
@@ -50,11 +48,10 @@
   ],
   "assignments": {
     "8083787316": "red",
-    "8086701135": "red",
     "8084008551": "blue",
     "8085186893": "green",
     "8082011994": "yellow"
   },
   "example_label": "example, pending Devin confirm",
-  "notes": "Live inventory is 5 sign sets. Red's primary number 808-378-7316 is already on the signs. 808-670-1135 is listed as a possible second Red line. Blue, Green, and Yellow numbers are the 2026 lines proposed to Devin on Nov 15 and are examples until he confirms them. Orange / the fifth line is still unconfirmed (670-1135 as its own set, 353-5389, or another line). Edit this file to change numbers later; keep the root colors.json copy in sync."
+  "notes": "Live inventory is 5 sign sets. The confirmation screen shows only the one phone number for the assigned color. Red is 808-378-7316. Do not show a second or alt line. 808-670-1135 is not displayed and is not stored on new sign-outs; it remains a possible future fifth-line candidate, not a second Red number. Blue, Green, and Yellow numbers are the 2026 lines proposed to Devin on Nov 15 and are examples until he confirms them. Orange / the fifth line is still unconfirmed (670-1135 as its own set, 353-5389, or another line). Edit this file to change numbers later; keep the root colors.json copy in sync."
 }

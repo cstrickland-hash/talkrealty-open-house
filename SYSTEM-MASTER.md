@@ -80,13 +80,13 @@ The admin secret may appear only in the Thursday card's private link field in th
 
   | Color | Number | Status |
   |---|---|---|
-  | Red | 808-378-7316 (also 808-670-1135) | Primary is live. 670-1135 is an example second line, pending Devin confirm. |
+  | Red | 808-378-7316 | Live. The confirmation screen shows only this number. |
   | Blue | 808-400-8551 | Example, pending Devin confirm. |
   | Green | 808-518-6893 | Example, pending Devin confirm. |
   | Yellow | 808-201-1994 | Example, pending Devin confirm. |
   | Orange | pending | Fifth 2026 line not confirmed yet. |
 
-- The page shows a live **Sign sets left: X of 5** counter (`?action=available`, plus `test=1` in TEST mode). Sign phone numbers are **not** listed on the front page. After an agent signs out, the confirmation screen shows that color's number (from `colors.json` on the front end, so it is right even if the Apps Script backend still only knows Red). Example numbers get a small "example, pending Devin confirm" note. Test mode (`?test=1`) still uses the fake 555 numbers from the backend.
+- The page shows a live **Sign sets left: X of 5** counter (`?action=available`, plus `test=1` in TEST mode). Sign phone numbers are **not** listed on the front page. After an agent signs out, the confirmation screen shows only that color's one phone number (from `colors.json` on the front end, so it is right even if the Apps Script backend still only knows Red). Never show a second or alt line. Example numbers (Blue, Green, Yellow) still get a small "example, pending Devin confirm" note. Test mode (`?test=1`) still uses the fake 555 numbers from the backend.
 - Luxury listing feel: Playfair Display + Inter Tight, navy `#161b2e`, cream `#f7f4ee`, Compass and Hawaii luxury blend. Christopher's own background clip loops with a crossfade. The form card stays fixed. Fonts: Playfair Display 400;500;600 and Inter Tight.
 - Color reveal: the screen fills slowly with the assigned color (~1.8s; instant if the phone prefers reduced motion), then shows in Playfair: "Your open house signs are the ones under the RED label." (color name is dynamic and uppercase). Underneath, a smaller Playfair line says **"Your open house signs phone number is"**, then the number on its own line, or **Pending** if that color has no number yet.
 - Number typography (locked after mobile feedback, t4901u): the number is the second-biggest line, `clamp(1.9rem, 8vw, 2.6rem)`, Playfair 600, letter-spacing `0.08em`, margin-top `0.85rem`. The label stays smaller: `clamp(0.95rem, 2.6vw, 1.2rem)`, Playfair 400. Confirm copy max-width is `min(28rem, 92vw)` so the label does not wrap a lone "is".
@@ -145,7 +145,7 @@ The site-down response routine should alert Christopher and follow the path abov
 
 ## 9. Pending items
 
-- Sign color numbers for Blue, Green, and Yellow are on the live page as **examples only**, marked "example, pending Devin confirm," from the 2026 lines proposed to Devin on Nov 15. They are not final until Devin or Christopher confirms them. Live Red remains 808-378-7316. 808-670-1135 is shown as a possible second Red line (example). Orange / the fifth line is still blank. Christopher emailed Devin to confirm on Nov 15, 2026, 8:55 PM HST.
+- Sign color numbers for Blue, Green, and Yellow are on the live page as **examples only**, marked "example, pending Devin confirm," from the 2026 lines proposed to Devin on Nov 15. They are not final until Devin or Christopher confirms them. Live Red remains 808-378-7316, and that is the only number shown when Red is signed out. 808-670-1135 is not shown as a second Red line and is not stored on new sign-outs; it remains a possible future fifth-line candidate. Orange / the fifth line is still blank. Christopher emailed Devin to confirm on Nov 15, 2026, 8:55 PM HST.
 - 2026 sign line candidates (from `/workspace/jarvis/open-house-signout/sign-lines-2026.md`, read only from FUB). These example numbers are now in `colors.json` and on the public sign list, clearly labeled as examples until confirmed. Do not print new physical sign riders from them until Christopher or Devin confirm:
   - Red: 808-378-7316 (the "talk oh signs (new 2026)" inbox, assigned only to Sophia Cretu). 808-670-1135 sits on the same inbox; it is unclear whether it is a second number or its own set.
   - 808-400-8551 ("talk Generic Open House Signs (new 2026)", no users assigned)
@@ -169,6 +169,7 @@ Add a dated line here the same day as any change to the site, Apps Script, inven
 
 ### 2026-11-16 (Hawaii / Pacific/Honolulu)
 
+- **~11:40 PM HST (t5123u).** Confirmation screen now shows only the one phone number for the assigned color. Christopher signed out Red at 11:34 PM HST (123 banana) and was shown both (808) 378-7316 and the intended Red alt (808) 670-1135. He asked that the alt line be dropped. The live log stored only the primary number; this was not a double color assignment or a duplicate submit. 808-670-1135 was removed from `colors.json`, from the confirm screen, from the Apps Script fallback inventory, and from `?action=numbers` color objects. The one live checkout (that Red row) was marked Returned through the admin return action; 0 signs are out (5 of 5 free).
 - **~11:25 PM HST (t5118u).** Removed the Sign numbers list from the public front page (Christopher: the numbers belong on the confirmation screen after an agent gets a color). The confirm screen reads `colors.json` on the front end and shows the assigned number plus the "example, pending Devin confirm" note when it applies. Test mode still uses fake 555 numbers and the TEST Log only.
 - **~11:20 PM HST (t5107u).** Added the 2026 example numbers to `colors.json` (Red 808-378-7316, also example 808-670-1135; Blue 808-400-8551; Green 808-518-6893; Yellow 808-201-1994; Orange still blank). The two leftover owner test sign-outs (Red Nov 15 "Remove this in 1 min Jarvis", Blue Nov 16 "123 bana") were marked Returned, not deleted, so the live counter can show 5 of 5 in the office. A short-lived front-page Sign numbers list was added, then removed the same night (see 11:25 PM).
 
